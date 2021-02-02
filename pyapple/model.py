@@ -94,3 +94,32 @@ class OTAIPSW:
 
     def _tofilesize(self, value: int):
         return size(value, system=alternative)
+
+
+class iDevice:
+    def __init__(
+        self,
+        name: str,
+        identifier: str,
+        boardconfig: str,
+        platform: str,
+        cpid: str,
+        bdid: str,
+        firmwares: Optional[list],
+    ) -> None:
+        self.name = name
+        self.identifier = identifier
+        self.boardconfig = boardconfig
+        self.platform = platform
+        self.cpid = cpid
+        self.bdid = bdid
+        self.firmwares = firmwares
+
+
+class IntelMacOS:
+    def __init__(self, product_id):
+        self.product_id = product_id
+        self.title = ""
+        self.version = ""
+        self.build = ""
+        self.packages = []
