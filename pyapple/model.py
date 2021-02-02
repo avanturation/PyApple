@@ -5,6 +5,19 @@ from hurry.filesize import size, alternative
 
 
 class IPSW:
+    """
+    A class for IPSW.
+
+    Arguments:
+
+        identifier: the identifier of IPSW Target (ex. iPhone12,1)
+        buildid: the build id of IPSW (ex. 18B92)
+        version: the version of IPSW (ex. 14.4)
+        url: the url of IPSW
+        filesize: fi
+
+    """
+
     def __init__(
         self,
         identifier: str,
