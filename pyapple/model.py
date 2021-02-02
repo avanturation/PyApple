@@ -117,9 +117,22 @@ class iDevice:
 
 
 class IntelMacOS:
-    def __init__(self, product_id):
+    def __init__(self, product_id) -> None:
         self.product_id = product_id
         self.title = ""
         self.version = ""
         self.build = ""
         self.packages = []
+
+
+class IntelMacOSPkg:
+    def __init__(self, url: str, filesize: int) -> None:
+        self.filename = self._getname(url)
+        self.uri = url
+        self.filesize = (filesize, self._tofilesize(filesize))
+
+    def _getname(self, uri):
+        return uri.split("/")[-1]
+
+    def _tofilesize(self, value: int):
+        return size(value, system=alternative)
