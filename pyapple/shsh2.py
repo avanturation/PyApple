@@ -11,7 +11,7 @@ class SHSH2:
         self.apnonce = apnonce
         self.version = version
 
-    async def DownloadBlob(self) -> Coroutine:
+    async def get_shsh2_blob(self) -> Coroutine:
         cmd = [
             "bin/tsschecker",
             "-d",
