@@ -21,6 +21,7 @@ class SHSH2:
             "-s -i",
             self.version,
         ]
+        
         if self.apnonce:
             cmd.append("--apnonce")
             cmd.append(self.apnonce)

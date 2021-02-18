@@ -1,21 +1,22 @@
-import orjson
 import asyncio
 import functools
+import json
 from typing import Any, List
-from .swscan import SWSCAN
+
+from .model import IPSW, OTAIPSW, IPSWKeys, iDevice
 from .parser import Parser
-from .model import iDevice, IPSW, IPSWKeys, OTAIPSW
+from .swscan import SWSCAN
 
 IPSW_URL = "https://api.ipsw.me/v4"
 
 
 class HALFTIME:
     def __init__(self) -> None:
-        pass
+        self.SWSCAN = SWSCAN()
 
     async def device(self, identifier: str) -> iDevice:
         raw_data = Parser.request(f"{IPSW_URL}/device/{identifier}")
-        data = orjson.loads(raw_data)
+        data = json.loads(raw_data)
 
         firmware_list = []
         for pkg in data["firmwares"]:
@@ -46,7 +47,7 @@ class HALFTIME:
 
     async def ipsw(self, identifier: str, buildid: str) -> IPSW:
         raw_data = Parser.request(f"{IPSW_URL}/ipsw/{identifier}/{buildid}")
-        data = orjson.loads(raw_data)
+        data = json.loads(raw_data)
 
         return IPSW(
             identnfier=data["identifier"],
@@ -62,7 +63,7 @@ class HALFTIME:
 
     async def all_ipsw(self, version: str) -> List:
         raw_data = Parser.request(f"{IPSW_URL}/ipsw/{version}")
-        data = orjson.loads(raw_data)
+        data = json.loads(raw_data)
         firmware_list = []
 
         for firmware in data:
@@ -80,6 +81,14 @@ class HALFTIME:
             firmware_list.append(ipsw_object)
 
         return firmware_list
+
+    async def all_keys_ipsw(self, identifier: str) -> List:
+        raw_data = Parser.request(f"{IPSW_URL}/keys/device/{identifier}")
+        data = json.loads(raw_data)
+        keys_list = []
+
+        for keys in data:
+            key_object = IPSWKeys()
 
 
 class Client(HALFTIME):

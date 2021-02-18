@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional, Union
+
 from dateutil import tz
-from hurry.filesize import size, alternative
+from hurry.filesize import alternative, size
 
 
 class IPSW:

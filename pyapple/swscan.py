@@ -1,8 +1,9 @@
-import re
 import plistlib
+import re
 from typing import Optional
-from .parser import Parser
+
 from .model import IntelMacOS, IntelMacOSPkg
+from .parser import Parser
 
 MIN_MACOS = 5
 MAX_MACOS = 16
