@@ -47,6 +47,33 @@ class IPSW:
         return size(value, system=alternative)
 
 
+class KeysObject:
+    def __init__(
+        self,
+        image: str,
+        filename: str,
+        kbag: str,
+        key: str,
+        iv: str,
+        date: Optional[str],
+    ) -> None:
+        self.image = image
+        self.filename = filename
+        self.kbag = kbag
+        self.key = key
+        self.iv = iv
+        self.date = self._todatetime(date)
+
+    def _todatetime(self, time: Union[str, None]):
+        if time is not None:
+            dest = tz.tzutc()
+            obj = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
+            obj = obj.replace(tzinfo=dest)
+            return obj
+        else:
+            return time
+
+
 class IPSWKeys:
     def __init__(
         self,

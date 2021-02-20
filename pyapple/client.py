@@ -3,7 +3,7 @@ import functools
 import json
 from typing import Any, List
 
-from .model import IPSW, OTAIPSW, IPSWKeys, iDevice
+from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice
 from .parser import Parser
 from .swscan import SWSCAN
 
@@ -88,7 +88,42 @@ class HALFTIME:
         keys_list = []
 
         for keys in data:
-            key_object = IPSWKeys()
+            key_object = IPSWKeys(
+                identifier=keys["identifier"],
+                buildid=keys["buildid"],
+                codename=keys["codename"],
+                baseband=keys["baseband"],
+                updateramdisk=keys["updateramdiskexists"],
+                restoreramdisk=keys["restoreramdiskexists"],
+            )
+            keys_list.append(key_object)
+
+        return keys_list
+
+    async def keys_ipsw(self, identifier: str, buildid: str) -> IPSWKeys:
+        raw_data = Parser.request(f"{IPSW_URL}/keys/ipsw/{identifier}/{buildid}")
+        data = json.loads(raw_data)
+        real_key_list = []
+
+        for keys in data["keys"]:
+            object = KeysObject(
+                image=keys["image"],
+                filename=keys["filename"],
+                kbag=keys["kbag"],
+                key=keys["key"],
+                iv=keys["iv"],
+                date=keys["date"],
+            )
+            real_key_list.append(object)
+
+        return IPSWKeys(
+            identifier=data["identifier"],
+            buildid=data["buildid"],
+            codename=data["codename"],
+            updateramdisk=data["updateramdiskexists"],
+            restoreramdisk=data["restoreramdiskexists"],
+            keys=real_key_list,
+        )
 
 
 class Client(HALFTIME):
