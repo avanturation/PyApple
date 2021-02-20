@@ -16,7 +16,7 @@ class HALFTIME:
         self.SWSCAN = SWSCAN()
 
     async def device(self, identifier: str) -> iDevice:
-        raw_data = Parser.request(f"{IPSW_URL}/device/{identifier}")
+        raw_data = await Parser.request(f"{IPSW_URL}/device/{identifier}")
         data = json.loads(raw_data)
 
         firmware_list = []
@@ -47,23 +47,24 @@ class HALFTIME:
         )
 
     async def ipsw(self, identifier: str, buildid: str) -> IPSW:
-        raw_data = Parser.request(f"{IPSW_URL}/ipsw/{identifier}/{buildid}")
+        raw_data = await Parser.request(f"{IPSW_URL}/ipsw/{identifier}/{buildid}")
         data = json.loads(raw_data)
 
         return IPSW(
-            identnfier=data["identifier"],
+            identifier=data["identifier"],
             version=data["version"],
             buildid=data["buildid"],
             url=data["url"],
             sha1=data["sha1sum"],
             md5=data["md5sum"],
+            filesize=data["filesize"],
             releasedate=data["releasedate"],
             uploaddate=data["uploaddate"],
             signed=data["signed"],
         )
 
     async def all_ipsw(self, version: str) -> List:
-        raw_data = Parser.request(f"{IPSW_URL}/ipsw/{version}")
+        raw_data = await Parser.request(f"{IPSW_URL}/ipsw/{version}")
         data = json.loads(raw_data)
         firmware_list = []
 
@@ -84,7 +85,7 @@ class HALFTIME:
         return firmware_list
 
     async def all_keys_ipsw(self, identifier: str) -> List:
-        raw_data = Parser.request(f"{IPSW_URL}/keys/device/{identifier}")
+        raw_data = await Parser.request(f"{IPSW_URL}/keys/device/{identifier}")
         data = json.loads(raw_data)
         keys_list = []
 
@@ -102,7 +103,7 @@ class HALFTIME:
         return keys_list
 
     async def keys_ipsw(self, identifier: str, buildid: str) -> IPSWKeys:
-        raw_data = Parser.request(f"{IPSW_URL}/keys/ipsw/{identifier}/{buildid}")
+        raw_data = await Parser.request(f"{IPSW_URL}/keys/ipsw/{identifier}/{buildid}")
         data = json.loads(raw_data)
         real_key_list = []
 
@@ -127,7 +128,7 @@ class HALFTIME:
         )
 
     async def ota_ipsw(self, identifier: str, buildid: str) -> OTAIPSW:
-        raw_data = Parser.request(f"{IPSW_URL}/ota/{identifier}/{buildid}")
+        raw_data = await Parser.request(f"{IPSW_URL}/ota/{identifier}/{buildid}")
         data = json.loads(raw_data)
 
         return OTAIPSW(
@@ -145,7 +146,7 @@ class HALFTIME:
         )
 
     async def all_ota_ipsw(self, version: str) -> List:
-        raw_data = Parser.request(f"{IPSW_URL}/ota/{version}")
+        raw_data = await Parser.request(f"{IPSW_URL}/ota/{version}")
         data = json.loads(raw_data)
         all_ota_data = []
 
