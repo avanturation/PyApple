@@ -65,6 +65,7 @@ class SWSCAN:
                 for x in reversed(range(self.min_macos, version + 1))
             ]
         )
+
         url += ".merged-1.sucatalog"
         ver_s = (
             MACOS_NAME[str(version)]
@@ -116,18 +117,20 @@ class SWSCAN:
 
                 if "URL" in Packages:
                     URL = Packages["URL"]
+
                     for obj in self.recovery_suffixes:
                         if URL.endswith(obj):
                             obj = IntelMacOS(product)
                             await self.get_metadata(product, obj)
                             self.macos_dict.append(obj)
+
             return self.macos_dict
 
     async def get_package(
         self,
         build_id: Optional[str],
         version: Optional[str],
-        product_id,
+        product_id: Optional[str],
         catalog_id="publicseed",
     ):
         self.macos_dict = []
@@ -146,13 +149,18 @@ class SWSCAN:
                         if IAPackageID["OSInstall"] == "com.apple.mpkg.OSInstall":
                             obj = IntelMacOS(product)
                             await self.get_metadata(product, obj)
+
                             if obj.build == build_id:
                                 await self.append_pkg(product, obj)
+                                self.macos_dict.append(obj)
+
                             elif obj.version == version:
                                 await self.append_pkg(product, obj)
+                                self.macos_dict.append(obj)
+
                             elif obj.product_id == product_id:
                                 await self.append_pkg(product, obj)
-                            self.macos_dict.append(obj)
+                                self.macos_dict.append(obj)
 
                     if "SharedSupport" in IAPackageID:
                         if IAPackageID["SharedSupport"].startswith(
@@ -160,13 +168,18 @@ class SWSCAN:
                         ):
                             obj = IntelMacOS(product)
                             await self.get_metadata(product, obj)
+
                             if obj.build == build_id:
                                 await self.append_pkg(product, obj)
+                                self.macos_dict.append(obj)
+
                             elif obj.version == version:
                                 await self.append_pkg(product, obj)
+                                self.macos_dict.append(obj)
+
                             elif obj.product_id == product_id:
                                 await self.append_pkg(product, obj)
-                            self.macos_dict.append(obj)
+                                self.macos_dict.append(obj)
 
             if "Packages" in products[product]:
                 Packages = products[product]["Packages"]
@@ -177,13 +190,19 @@ class SWSCAN:
                         if URL.endswith(obj):
                             obj = IntelMacOS(product)
                             await self.get_metadata(product, obj)
+
                             if obj.build == build_id:
                                 await self.append_pkg(product, obj)
+                                self.macos_dict.append(obj)
+
                             elif obj.version == version:
                                 await self.append_pkg(product, obj)
+                                self.macos_dict.append(obj)
+
                             elif obj.product_id == product_id:
                                 await self.append_pkg(product, obj)
-                            self.macos_dict.append(obj)
+                                self.macos_dict.append(obj)
+
             return self.macos_dict
 
     async def get_metadata(self, product, object: IntelMacOS):

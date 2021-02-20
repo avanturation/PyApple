@@ -1,12 +1,11 @@
 import asyncio
 import functools
 import json
-from typing import Any, List
-
-from aiohttp.helpers import is_ip_address
+from typing import Any, Coroutine, List, Optional
 
 from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice
 from .parser import Parser
+from .shsh2 import SHSH2
 from .swscan import SWSCAN
 
 IPSW_URL = "https://api.ipsw.me/v4"
@@ -167,6 +166,26 @@ class HALFTIME:
             all_ota_data.append(obj)
 
         return all_ota_data
+
+    async def shsh2_blobs(
+        self, ecid: str, model: str, version: str, apnonce: Optional[str]
+    ) -> Coroutine:
+        # Needs more touching
+        shsh2_instance = SHSH2(ecid=ecid, apnonce=apnonce, model=model, version=version)
+
+        return shsh2_instance.get_shsh2_blob()
+
+    async def available_macos(self):
+        list_macos = await self.SWSCAN.get_products()
+        return list_macos
+
+    async def get_macos(
+        self, buildid: Optional[str], version: Optional[str], product_id: Optional[str]
+    ) -> List:
+        list_specific_macos = await self.SWSCAN.get_package(
+            build_id=buildid, version=version, product_id=product_id
+        )
+        return list_specific_macos
 
 
 class Client(HALFTIME):
