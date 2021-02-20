@@ -6,6 +6,22 @@ from hurry.filesize import alternative, size
 
 
 class IPSW:
+    """
+    A Python class for Regular IPSW files.
+
+    Arguments:
+    identifier: iDevice identifier for IPSW
+    buildid: Build ID of IPSW
+    version: OS Version of IPSW
+    url: Download link of IPSW
+    filesize: Size of IPSW file (in integer)
+    sha1: SHA1 sum of IPSW file
+    md5: MD5 sum of IPSW file
+    releasedate: Released date of IPSW (in string)
+    uploaddate: Uploaded date of IPSW (in string)
+    signed: A bool whether tells IPSW is still signed
+    """
+
     def __init__(
         self,
         identifier: str,
@@ -80,7 +96,7 @@ class IPSWKeys:
         identifier: str,
         buildid: str,
         codename: str,
-        baseband: str,
+        baseband: Optional[str],
         updateramdisk: bool,
         restoreramdisk: bool,
         keys: Optional[list],
@@ -139,6 +155,19 @@ class OTAIPSW:
 
 
 class iDevice:
+    """
+    A Python class for an iDevice.
+
+    Arguments:
+    name: Name of iDevice
+    identifier: Identifier of iDevice
+    boardconfig: Boardconfig of iDevice
+    platform: CPU Platform of iDevice
+    cpid: CPID of iDevice
+    bdid: BDID of iDevice
+    firmwares: List of available firmwares of iDevice
+    """
+
     def __init__(
         self,
         name: str,
@@ -159,6 +188,17 @@ class iDevice:
 
 
 class IntelMacOS:
+    """
+    A Python class for an Intel-based macOS Installation.
+
+    Arguments:
+    product_id: A product id of macOS Installation
+    title: A title of macOS Installation
+    version: Version of macOS
+    build: Build ID of macOS
+    packages: List of macOS Packages
+    """
+
     def __init__(self, product_id) -> None:
         self.product_id = product_id
         self.title = ""

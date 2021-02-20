@@ -3,6 +3,8 @@ import functools
 import json
 from typing import Any, List
 
+from aiohttp.helpers import is_ip_address
+
 from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice
 from .parser import Parser
 from .swscan import SWSCAN
@@ -124,6 +126,47 @@ class HALFTIME:
             restoreramdisk=data["restoreramdiskexists"],
             keys=real_key_list,
         )
+
+    async def ota_ipsw(self, identifier: str, buildid: str) -> OTAIPSW:
+        raw_data = Parser.request(f"{IPSW_URL}/ota/{identifier}/{buildid}")
+        data = json.loads(raw_data)
+
+        return OTAIPSW(
+            identifier=data["identifier"],
+            buildid=data["buildid"],
+            version=data["version"],
+            url=data["url"],
+            filesize=data["filesize"],
+            prereq_buildid=data["prerequisitebuildid"],
+            prereq_version=data["prerequisiteversion"],
+            release_type=data["releasetype"],
+            uploaddate=data["uploaddate"],
+            releasedate=data["releasedate"],
+            signed=data["signed"],
+        )
+
+    async def all_ota_ipsw(self, version: str) -> List:
+        raw_data = Parser.request(f"{IPSW_URL}/ota/{version}")
+        data = json.loads(raw_data)
+        all_ota_data = []
+
+        for datas in data:
+            obj = OTAIPSW(
+                identifier=datas["identifier"],
+                buildid=datas["buildid"],
+                version=datas["version"],
+                url=datas["url"],
+                filesize=datas["filesize"],
+                prereq_buildid=datas["prerequisitebuildid"],
+                prereq_version=datas["prerequisiteversion"],
+                release_type=datas["releasetype"],
+                uploaddate=datas["uploaddate"],
+                releasedate=datas["releasedate"],
+                signed=datas["signed"],
+            )
+            all_ota_data.append(obj)
+
+        return all_ota_data
 
 
 class Client(HALFTIME):
