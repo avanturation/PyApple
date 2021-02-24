@@ -5,6 +5,16 @@ from dateutil import tz
 from hurry.filesize import alternative, size
 
 
+def to_dt(time: Optional[str]):
+    if time is None:
+        return time  # early return
+
+    dest = tz.tzutc()
+    obj = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
+    obj = obj.replace(tzinfo=dest)
+    return obj
+
+
 class IPSW:
     """
     A Python class for Regular IPSW files.
@@ -29,8 +39,8 @@ class IPSW:
         version: str,
         url: str,
         filesize: int,
-        sha1: str,
-        md5: str,
+        sha1sum: str,
+        md5sum: str,
         releasedate: Union[
             str, None
         ],  # sometimes Apple gives firmware release date as null, fuck
@@ -43,24 +53,12 @@ class IPSW:
         self.buildid = buildid
         self.version = version
         self.uri = url
-        self.filesize = (filesize, self._tofilesize(filesize))
-        self.sha1 = sha1
-        self.md5 = md5
+        self.filesize = (filesize, size(filesize, system=alternative))
+        self.sha1sum = sha1sum
+        self.md5sum = md5sum
         self.signed = signed
-        self.releasedate = self._todatetime(releasedate)
-        self.uploaddate = self._todatetime(uploaddate)
-
-    def _todatetime(self, time: Union[str, None]):
-        if time is not None:
-            dest = tz.tzutc()
-            obj = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
-            obj = obj.replace(tzinfo=dest)
-            return obj
-        else:
-            return time
-
-    def _tofilesize(self, value: int):
-        return size(value, system=alternative)
+        self.releasedate = to_dt(releasedate)
+        self.uploaddate = to_dt(uploaddate)
 
 
 class KeysObject:
@@ -78,16 +76,7 @@ class KeysObject:
         self.kbag = kbag
         self.key = key
         self.iv = iv
-        self.date = self._todatetime(date)
-
-    def _todatetime(self, time: Union[str, None]):
-        if time is not None:
-            dest = tz.tzutc()
-            obj = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
-            obj = obj.replace(tzinfo=dest)
-            return obj
-        else:
-            return time
+        self.date = to_dt(date)
 
 
 class IPSWKeys:
@@ -97,16 +86,16 @@ class IPSWKeys:
         buildid: str,
         codename: str,
         baseband: Optional[str],
-        updateramdisk: bool,
-        restoreramdisk: bool,
+        updateramdiskexists: bool,
+        restoreramdiskexists: bool,
         keys: Optional[list],
     ) -> None:
         self.identifier = identifier
         self.buildid = buildid
         self.codename = codename
         self.baseband = baseband
-        self.updateramdisk = updateramdisk
-        self.restoreramdisk = restoreramdisk
+        self.updateramdiskexists = updateramdiskexists
+        self.restoreramdiskexists = restoreramdiskexists
         self.keys = keys
 
 
@@ -118,8 +107,8 @@ class OTAIPSW:
         version: str,
         url: str,
         filesize: int,
-        prereq_buildid: str,
-        prereq_version: str,
+        prerequisitebuildid: str,
+        prerequisiteversion: str,
         release_type: str,
         uploaddate: Union[
             str, None
@@ -133,25 +122,13 @@ class OTAIPSW:
         self.buildid = buildid
         self.version = version
         self.uri = url
-        self.filesize = (filesize, self._tofilesize(filesize))
-        self.prereq_buildid = prereq_buildid
-        self.prereq_version = prereq_version
+        self.filesize = (filesize, size(filesize, system=alternative))
+        self.prerequisitebuildid = prerequisitebuildid
+        self.prerequisiteversion = prerequisiteversion
         self.release_type = release_type
-        self.upload_date = self._todatetime(uploaddate)
-        self.release_date = self._todatetime(releasedate)
+        self.upload_date = to_dt(uploaddate)
+        self.release_date = to_dt(releasedate)
         self.signed = signed
-
-    def _todatetime(self, time: Union[str, None]):
-        if time is not None:
-            dest = tz.tzutc()
-            obj = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
-            obj = obj.replace(tzinfo=dest)
-            return obj
-        else:
-            return time
-
-    def _tofilesize(self, value: int):
-        return size(value, system=alternative)
 
 
 class iDevice:
@@ -193,10 +170,6 @@ class IntelMacOS:
 
     Arguments:
     product_id: A product id of macOS Installation
-    title: A title of macOS Installation
-    version: Version of macOS
-    build: Build ID of macOS
-    packages: List of macOS Packages
     """
 
     def __init__(self, product_id) -> None:
@@ -209,12 +182,6 @@ class IntelMacOS:
 
 class IntelMacOSPkg:
     def __init__(self, url: str, filesize: int) -> None:
-        self.filename = self._getname(url)
+        self.filename = url.split("/")[-1]
         self.uri = url
-        self.filesize = (filesize, self._tofilesize(filesize))
-
-    def _getname(self, uri):
-        return uri.split("/")[-1]
-
-    def _tofilesize(self, value: int):
-        return size(value, system=alternative)
+        self.filesize = (filesize, size(filesize, system=alternative))

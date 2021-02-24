@@ -54,10 +54,10 @@ class SWSCAN:
         self.max_macos = MAX_MACOS
         self.macos_dict = []
 
-    def build_url(self, catalog_id="DeveloperSeed") -> str:
+    def build_url(self, catalog_id) -> str:
         catalog = catalog_id.lower()
         version = self.max_macos
-        url = "https://swscan.apple.com/content/catalogs/others/index-"
+        url = "/index-"
 
         url += "-".join(
             [
@@ -67,6 +67,7 @@ class SWSCAN:
         )
 
         url += ".merged-1.sucatalog"
+
         ver_s = (
             MACOS_NAME[str(version)]
             if str(version) in MACOS_NAME
@@ -78,15 +79,14 @@ class SWSCAN:
 
         return url
 
-    async def fetch_catalog(self, catalog_id="publicseed") -> bytes:
+    async def fetch_catalog(self, catalog_id="publicseed"):
         url = self.build_url(catalog_id)
-        self.raw_catalog = await self.HTTP.request(url, header=OSINSTALL)
-        self.catalog_data = bytes(self.raw_catalog, "utf-8")
-        self.root = plistlib.loads(self.catalog_data)
-        return self.root
+        raw_catalog = await self.HTTP.swscan(url, headers=OSINSTALL)
+        catalog_data = bytes(raw_catalog, "utf-8")
+        self.root = plistlib.loads(catalog_data)
 
     async def get_products(self, catalog_id="publicseed"):
-        self.macos_dict = []
+        macos_dict = []
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
@@ -94,37 +94,31 @@ class SWSCAN:
         for product in products:
             if "ExtendedMetaInfo" in products[product]:
                 IAMetaInfo = products[product]["ExtendedMetaInfo"]
-
                 if "InstallAssistantPackageIdentifiers" in IAMetaInfo:
                     IAPackageID = IAMetaInfo["InstallAssistantPackageIdentifiers"]
-
                     if "OSInstall" in IAPackageID:
                         if IAPackageID["OSInstall"] == "com.apple.mpkg.OSInstall":
                             obj = IntelMacOS(product)
                             await self.get_metadata(product, obj)
-                            self.macos_dict.append(obj)
-
+                            macos_dict.append(obj)
                     if "SharedSupport" in IAPackageID:
                         if IAPackageID["SharedSupport"].startswith(
                             "com.apple.pkg.InstallAssistant"
                         ):
                             obj = IntelMacOS(product)
                             await self.get_metadata(product, obj)
-                            self.macos_dict.append(obj)
-
+                            macos_dict.append(obj)
             if "Packages" in products[product]:
                 Packages = products[product]["Packages"]
-
                 if "URL" in Packages:
                     URL = Packages["URL"]
-
                     for obj in self.recovery_suffixes:
                         if URL.endswith(obj):
                             obj = IntelMacOS(product)
                             await self.get_metadata(product, obj)
-                            self.macos_dict.append(obj)
+                            macos_dict.append(obj)
 
-            return self.macos_dict
+        return macos_dict
 
     async def get_package(
         self,
@@ -133,7 +127,7 @@ class SWSCAN:
         product_id: Optional[str],
         catalog_id="publicseed",
     ):
-        self.macos_dict = []
+        macos_dict = []
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
@@ -152,15 +146,15 @@ class SWSCAN:
 
                             if obj.build == build_id:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
                             elif obj.version == version:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
                             elif obj.product_id == product_id:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
                     if "SharedSupport" in IAPackageID:
                         if IAPackageID["SharedSupport"].startswith(
@@ -171,15 +165,15 @@ class SWSCAN:
 
                             if obj.build == build_id:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
                             elif obj.version == version:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
                             elif obj.product_id == product_id:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
             if "Packages" in products[product]:
                 Packages = products[product]["Packages"]
@@ -193,21 +187,20 @@ class SWSCAN:
 
                             if obj.build == build_id:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
                             elif obj.version == version:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
                             elif obj.product_id == product_id:
                                 await self.append_pkg(product, obj)
-                                self.macos_dict.append(obj)
+                                macos_dict.append(obj)
 
-            return self.macos_dict
+        return macos_dict
 
     async def get_metadata(self, product, object: IntelMacOS):
         target = self.root["Products"][product]
-
         try:
             resp = await self.HTTP.request(target["ServerMetadataURL"])
             smd = plistlib.loads(bytes(resp, "utf-8"))

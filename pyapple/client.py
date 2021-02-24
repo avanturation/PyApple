@@ -1,11 +1,9 @@
 import asyncio
 import functools
-import json
-from typing import Any, Coroutine, List, Optional
+from typing import Any, List, Optional
 
 from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice
 from .parser import Parser
-from .shsh2 import SHSH2
 from .swscan import SWSCAN
 
 IPSW_URL = "https://api.ipsw.me/v4"
@@ -16,175 +14,83 @@ class HALFTIME:
         self.SWSCAN = SWSCAN()
 
     async def device(self, identifier: str) -> iDevice:
-        raw_data = await Parser.request(f"{IPSW_URL}/device/{identifier}")
-        data = json.loads(raw_data)
-
+        data = await Parser.ipsw(method="GET", endpoint=f"/device/{identifier}")
         firmware_list = []
-        for pkg in data["firmwares"]:
-            firmware_list.append(
-                IPSW(
-                    identifier=pkg["identifier"],
-                    version=pkg["version"],
-                    buildid=pkg["buildid"],
-                    sha1=pkg["sha1sum"],
-                    md5=pkg["md5sum"],
-                    filesize=pkg["filesize"],
-                    url=pkg["url"],
-                    releasedate=pkg["releasedate"],
-                    uploaddate=pkg["uploaddate"],
-                    signed=pkg["signed"],
-                )
-            )
 
-        return iDevice(
-            name=data["name"],
-            identifier=data["identifier"],
-            boardconfig=data["boardconfig"],
-            platform=data["platform"],
-            cpid=data["cpid"],
-            bdid=data["bdid"],
-            firmwares=firmware_list,
-        )
+        for pkg in data["firmwares"]:
+            firmware_list.append(IPSW(**pkg))
+
+        data["firmwares"] = firmware_list
+
+        return iDevice(**data)
 
     async def ipsw(self, identifier: str, buildid: str) -> IPSW:
-        raw_data = await Parser.request(f"{IPSW_URL}/ipsw/{identifier}/{buildid}")
-        data = json.loads(raw_data)
+        data = await Parser.ipsw(method="GET", endpoint=f"/ipsw/{identifier}/{buildid}")
 
-        return IPSW(
-            identifier=data["identifier"],
-            version=data["version"],
-            buildid=data["buildid"],
-            url=data["url"],
-            sha1=data["sha1sum"],
-            md5=data["md5sum"],
-            filesize=data["filesize"],
-            releasedate=data["releasedate"],
-            uploaddate=data["uploaddate"],
-            signed=data["signed"],
-        )
+        return IPSW(**data)
 
-    async def all_ipsw(self, version: str) -> List:
-        raw_data = await Parser.request(f"{IPSW_URL}/ipsw/{version}")
-        data = json.loads(raw_data)
+    async def ipsw_version(self, version: str) -> List:
+        data = await Parser.ipsw(method="GET", endpoint=f"/ipsw/{version}")
         firmware_list = []
 
         for firmware in data:
-            ipsw_object = IPSW(
-                identnfier=firmware["identifier"],
-                version=firmware["version"],
-                buildid=firmware["buildid"],
-                url=firmware["url"],
-                sha1=firmware["sha1sum"],
-                md5=firmware["md5sum"],
-                releasedate=firmware["releasedate"],
-                uploaddate=firmware["uploaddate"],
-                signed=firmware["signed"],
-            )
+            ipsw_object = IPSW(**firmware)
             firmware_list.append(ipsw_object)
 
         return firmware_list
 
-    async def all_keys_ipsw(self, identifier: str) -> List:
-        raw_data = await Parser.request(f"{IPSW_URL}/keys/device/{identifier}")
-        data = json.loads(raw_data)
+    async def keys_device(self, identifier: str) -> List:
+        data = await Parser.ipsw(method="GET", endpoint=f"/keys/device/{identifier}")
         keys_list = []
 
         for keys in data:
-            key_object = IPSWKeys(
-                identifier=keys["identifier"],
-                buildid=keys["buildid"],
-                codename=keys["codename"],
-                baseband=keys["baseband"],
-                updateramdisk=keys["updateramdiskexists"],
-                restoreramdisk=keys["restoreramdiskexists"],
-            )
+            key_object = IPSWKeys(**keys)
             keys_list.append(key_object)
 
         return keys_list
 
-    async def keys_ipsw(self, identifier: str, buildid: str) -> IPSWKeys:
-        raw_data = await Parser.request(f"{IPSW_URL}/keys/ipsw/{identifier}/{buildid}")
-        data = json.loads(raw_data)
-        real_key_list = []
+    async def keys(self, identifier: str, buildid: str) -> IPSWKeys:
+        data = await Parser.ipsw(
+            method="GET", endpoint=f"/keys/ipsw/{identifier}/{buildid}"
+        )
+        key_list = []
 
         for keys in data["keys"]:
-            object = KeysObject(
-                image=keys["image"],
-                filename=keys["filename"],
-                kbag=keys["kbag"],
-                key=keys["key"],
-                iv=keys["iv"],
-                date=keys["date"],
-            )
-            real_key_list.append(object)
+            object = KeysObject(**keys)
+            key_list.append(object)
 
-        return IPSWKeys(
-            identifier=data["identifier"],
-            buildid=data["buildid"],
-            codename=data["codename"],
-            updateramdisk=data["updateramdiskexists"],
-            restoreramdisk=data["restoreramdiskexists"],
-            keys=real_key_list,
-        )
+        data["keys"] = key_list
 
-    async def ota_ipsw(self, identifier: str, buildid: str) -> OTAIPSW:
-        raw_data = await Parser.request(f"{IPSW_URL}/ota/{identifier}/{buildid}")
-        data = json.loads(raw_data)
+        return IPSWKeys(**data)
 
-        return OTAIPSW(
-            identifier=data["identifier"],
-            buildid=data["buildid"],
-            version=data["version"],
-            url=data["url"],
-            filesize=data["filesize"],
-            prereq_buildid=data["prerequisitebuildid"],
-            prereq_version=data["prerequisiteversion"],
-            release_type=data["releasetype"],
-            uploaddate=data["uploaddate"],
-            releasedate=data["releasedate"],
-            signed=data["signed"],
-        )
+    async def ota(self, identifier: str, buildid: str) -> OTAIPSW:
+        data = await Parser.ipsw(method="GET", endpoint=f"/ota/{identifier}/{buildid}")
 
-    async def all_ota_ipsw(self, version: str) -> List:
-        raw_data = await Parser.request(f"{IPSW_URL}/ota/{version}")
-        data = json.loads(raw_data)
-        all_ota_data = []
+        return OTAIPSW(**data)
 
-        for datas in data:
-            obj = OTAIPSW(
-                identifier=datas["identifier"],
-                buildid=datas["buildid"],
-                version=datas["version"],
-                url=datas["url"],
-                filesize=datas["filesize"],
-                prereq_buildid=datas["prerequisitebuildid"],
-                prereq_version=datas["prerequisiteversion"],
-                release_type=datas["releasetype"],
-                uploaddate=datas["uploaddate"],
-                releasedate=datas["releasedate"],
-                signed=datas["signed"],
-            )
-            all_ota_data.append(obj)
+    async def ota_version(self, version: str) -> List:
+        data = await Parser.ipsw(method="GET", endpoint=f"/ota/{version}")
+        ota_data = []
 
-        return all_ota_data
+        for otas in data:
+            obj = OTAIPSW(**otas)
+            ota_data.append(obj)
 
-    async def shsh2_blobs(
-        self, ecid: str, model: str, version: str, apnonce: Optional[str]
-    ) -> Coroutine:
-        # Needs more touching
-        shsh2_instance = SHSH2(ecid=ecid, apnonce=apnonce, model=model, version=version)
+        return ota_data
 
-        return shsh2_instance.get_shsh2_blob()
-
-    async def available_macos(self):
-        list_macos = await self.SWSCAN.get_products()
+    async def available_macos(self, seed: Optional[str] = "publicseed"):
+        list_macos = await self.SWSCAN.get_products(catalog_id=seed)
         return list_macos
 
     async def get_macos(
-        self, buildid: Optional[str], version: Optional[str], product_id: Optional[str]
+        self,
+        buildid: Optional[str],
+        version: Optional[str],
+        product_id: Optional[str],
+        seed: Optional[str] = "publicseed",
     ) -> List:
         list_specific_macos = await self.SWSCAN.get_package(
-            build_id=buildid, version=version, product_id=product_id
+            build_id=buildid, version=version, product_id=product_id, catalog_id=seed
         )
         return list_specific_macos
 
