@@ -6,8 +6,6 @@ from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice
 from .parser import Parser
 from .swscan import SWSCAN
 
-IPSW_URL = "https://api.ipsw.me/v4"
-
 
 class HALFTIME:
     def __init__(self) -> None:
@@ -56,8 +54,8 @@ class HALFTIME:
         key_list = []
 
         for keys in data["keys"]:
-            object = KeysObject(**keys)
-            key_list.append(object)
+            key = KeysObject(**keys)
+            key_list.append(key)
 
         data["keys"] = key_list
 

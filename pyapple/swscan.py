@@ -1,5 +1,6 @@
 import plistlib
 import re
+from contextlib import suppress
 from typing import Optional
 
 from .model import IntelMacOS, IntelMacOSPkg
@@ -74,7 +75,7 @@ class SWSCAN:
             else "10." + str(version)
         )
 
-        if len(CATLOG_SUF[catalog]):
+        if CATLOG_SUF[catalog]:
             url = url.replace(ver_s, ver_s + CATLOG_SUF[catalog] + "-" + ver_s)
 
         return url
@@ -199,14 +200,14 @@ class SWSCAN:
 
         return macos_dict
 
-    async def get_metadata(self, product, object: IntelMacOS):
+    async def get_metadata(self, product, obj: IntelMacOS):
         target = self.root["Products"][product]
         try:
             resp = await self.HTTP.request(target["ServerMetadataURL"])
             smd = plistlib.loads(bytes(resp, "utf-8"))
 
-            object.title = smd["localization"]["English"]["title"]
-            object.version = smd["CFBundleShortVersionString"]
+            obj.title = smd["localization"]["English"]["title"]
+            obj.version = smd["CFBundleShortVersionString"]
 
             dist_file = await self.HTTP.request(target["Distributions"]["English"])
             build = version = name = "Unknown"
@@ -217,16 +218,14 @@ class SWSCAN:
                 else "BUILD"
             )
 
-            try:
+            with suppress(Exception):
                 build = (
                     dist_file.split("<key>{}</key>".format(build_search))[1]
                     .split("<string>")[1]
                     .split("</string>")[0]
                 )
-            except:
-                pass
 
-            object.build = build
+            obj.build = build
 
         except KeyError:
             dist_file = await self.HTTP.request(target["Distributions"]["English"])
@@ -244,35 +243,29 @@ class SWSCAN:
                 else "VERSION"
             )
 
-            try:
+            with suppress(Exception):
                 build = (
                     dist_file.split("<key>{}</key>".format(build_search))[1]
                     .split("<string>")[1]
                     .split("</string>")[0]
                 )
-            except:
-                pass
 
-            try:
+            with suppress(Exception):
                 version = (
                     dist_file.split("<key>{}</key>".format(vers_search))[1]
                     .split("<string>")[1]
                     .split("</string>")[0]
                 )
-            except:
-                pass
 
-            try:
+            with suppress(Exception):
                 name = re.search(r"<title>(.+?)</title>", dist_file).group(1)
-            except:
-                pass
 
-            object.build = build
-            object.title = name
-            object.version = version
+            obj.build = build
+            obj.title = name
+            obj.version = version
 
-    async def append_pkg(self, product, object: IntelMacOS):
+    async def append_pkg(self, product, obj: IntelMacOS):
         target = self.root["Products"][product]
         for package in target["Packages"]:
             full_pkg = IntelMacOSPkg(url=package["URL"], filesize=package["Size"])
-            object.packages.append(full_pkg)
+            obj.packages.append(full_pkg)
