@@ -13,9 +13,7 @@ class HALFTIME:
 
     async def device(self, identifier: str) -> iDevice:
         data = await Parser.ipsw(method="GET", endpoint=f"/device/{identifier}")
-        firmware_list = [IPSW(**firmware) for firmware in data["firmwares"]]
-
-        data["firmwares"] = firmware_list
+        data["firmwares"] = [IPSW(**firmware) for firmware in data["firmwares"]]
 
         return iDevice(**data)
 
@@ -38,9 +36,7 @@ class HALFTIME:
         data = await Parser.ipsw(
             method="GET", endpoint=f"/keys/ipsw/{identifier}/{buildid}"
         )
-        key_list = [KeysObject(**keys) for keys in data["keys"]]
-
-        data["keys"] = key_list
+        data["keys"] = [KeysObject(**keys) for keys in data["keys"]]
 
         return IPSWKeys(**data)
 
@@ -55,8 +51,7 @@ class HALFTIME:
         return [OTAIPSW(**ota) for ota in data]
 
     async def available_macos(self, seed: Optional[str] = "publicseed"):
-        list_macos = await self.SWSCAN.get_products(catalog_id=seed)
-        return list_macos
+        return await self.SWSCAN.get_products(catalog_id=seed)
 
     async def get_macos(
         self,
@@ -65,10 +60,9 @@ class HALFTIME:
         product_id: Optional[str],
         seed: Optional[str] = "publicseed",
     ) -> List:
-        list_specific_macos = await self.SWSCAN.get_package(
+        return await self.SWSCAN.get_package(
             build_id=buildid, version=version, product_id=product_id, catalog_id=seed
         )
-        return list_specific_macos
 
 
 class Client(HALFTIME):
