@@ -185,3 +185,8 @@ class IntelMacOSPkg:
         self.filename = url.split("/")[-1]
         self.uri = url
         self.filesize = (filesize, size(filesize, system=alternative))
+
+
+class CydiaPackage:
+    def __init__(self) -> None:
+        pass

@@ -13,10 +13,7 @@ class HALFTIME:
 
     async def device(self, identifier: str) -> iDevice:
         data = await Parser.ipsw(method="GET", endpoint=f"/device/{identifier}")
-        firmware_list = []
-
-        for pkg in data["firmwares"]:
-            firmware_list.append(IPSW(**pkg))
+        firmware_list = [IPSW(**firmware) for firmware in data["firmwares"]]
 
         data["firmwares"] = firmware_list
 
@@ -29,33 +26,19 @@ class HALFTIME:
 
     async def ipsw_version(self, version: str) -> List:
         data = await Parser.ipsw(method="GET", endpoint=f"/ipsw/{version}")
-        firmware_list = []
 
-        for firmware in data:
-            ipsw_object = IPSW(**firmware)
-            firmware_list.append(ipsw_object)
-
-        return firmware_list
+        return [IPSW(**firmware) for firmware in data]
 
     async def keys_device(self, identifier: str) -> List:
         data = await Parser.ipsw(method="GET", endpoint=f"/keys/device/{identifier}")
-        keys_list = []
 
-        for keys in data:
-            key_object = IPSWKeys(**keys)
-            keys_list.append(key_object)
-
-        return keys_list
+        return [IPSWKeys(**keys) for keys in data]
 
     async def keys(self, identifier: str, buildid: str) -> IPSWKeys:
         data = await Parser.ipsw(
             method="GET", endpoint=f"/keys/ipsw/{identifier}/{buildid}"
         )
-        key_list = []
-
-        for keys in data["keys"]:
-            key = KeysObject(**keys)
-            key_list.append(key)
+        key_list = [KeysObject(**keys) for keys in data["keys"]]
 
         data["keys"] = key_list
 
@@ -68,13 +51,8 @@ class HALFTIME:
 
     async def ota_version(self, version: str) -> List:
         data = await Parser.ipsw(method="GET", endpoint=f"/ota/{version}")
-        ota_data = []
 
-        for otas in data:
-            obj = OTAIPSW(**otas)
-            ota_data.append(obj)
-
-        return ota_data
+        return [OTAIPSW(**ota) for ota in data]
 
     async def available_macos(self, seed: Optional[str] = "publicseed"):
         list_macos = await self.SWSCAN.get_products(catalog_id=seed)
