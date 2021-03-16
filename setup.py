@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="PyApple",
-    version="1.0.1",
+    version="1.0.2",
     license="MIT",
     author="fxrcha",
     author_email="truetype24@gmail.com",
