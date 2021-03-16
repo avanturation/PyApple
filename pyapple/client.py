@@ -7,7 +7,7 @@ from .parser import Parser
 from .swscan import SWSCAN
 
 
-class HALFTIME:
+class _Client:
     def __init__(self) -> None:
         self.SWSCAN = SWSCAN()
 
@@ -65,7 +65,7 @@ class HALFTIME:
         )
 
 
-class Client(HALFTIME):
+class Client(_Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

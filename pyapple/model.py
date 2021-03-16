@@ -154,6 +154,7 @@ class iDevice:
         cpid: str,
         bdid: str,
         firmwares: Optional[list],
+        boards: Optional[list],
     ) -> None:
         self.name = name
         self.identifier = identifier
@@ -162,6 +163,7 @@ class iDevice:
         self.cpid = cpid
         self.bdid = bdid
         self.firmwares = firmwares
+        self.boards = boards
 
 
 class IntelMacOS:
