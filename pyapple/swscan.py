@@ -93,31 +93,33 @@ class SWSCAN:
 
         products = self.root["Products"]
         for product in products:
-            if "ExtendedMetaInfo" in products[product]:
-                IAMetaInfo = products[product]["ExtendedMetaInfo"]
-                if "InstallAssistantPackageIdentifiers" in IAMetaInfo:
-                    IAPackageID = IAMetaInfo["InstallAssistantPackageIdentifiers"]
-                    if "OSInstall" in IAPackageID:
-                        if IAPackageID["OSInstall"] == "com.apple.mpkg.OSInstall":
-                            obj = IntelMacOS(product)
-                            await self.get_metadata(product, obj)
-                            macos_dict.append(obj)
-                    if "SharedSupport" in IAPackageID:
-                        if IAPackageID["SharedSupport"].startswith(
-                            "com.apple.pkg.InstallAssistant"
-                        ):
-                            obj = IntelMacOS(product)
-                            await self.get_metadata(product, obj)
-                            macos_dict.append(obj)
-            if "Packages" in products[product]:
-                Packages = products[product]["Packages"]
-                if "URL" in Packages:
-                    URL = Packages["URL"]
-                    for obj in self.recovery_suffixes:
-                        if URL.endswith(obj):
-                            obj = IntelMacOS(product)
-                            await self.get_metadata(product, obj)
-                            macos_dict.append(obj)
+            try:
+                if "ExtendedMetaInfo" in products[product]:
+
+                    if products[product]["ExtendedMetaInfo"][
+                        "InstallAssistantPackageIdentifiers"
+                    ]["OSInstall"] == "com.apple.mpkg.OSInstall" or products[product][
+                        "ExtendedMetaInfo"
+                    ][
+                        "InstallAssistantPackageIdentifiers"
+                    ][
+                        "SharedSupport"
+                    ].startswith(
+                        "com.apple.pkg.InstallAssistant"
+                    ):
+                        macos_dict.append(
+                            await self.get_metadata(product, IntelMacOS(product))
+                        )
+
+                elif "Packages" in products[product]:
+                    macos_dict = [
+                        await self.get_metadata(product, IntelMacOS(product))
+                        for obj in self.recovery_suffixes
+                        if products[product]["Packages"]["URL"].endswith(obj)
+                    ]
+
+            except Exception:
+                pass
 
         return macos_dict
 
@@ -263,6 +265,8 @@ class SWSCAN:
             obj.build = build
             obj.title = name
             obj.version = version
+
+        return obj
 
     async def append_pkg(self, product, obj: IntelMacOS):
         target = self.root["Products"][product]
