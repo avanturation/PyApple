@@ -2,7 +2,7 @@ import asyncio
 import functools
 from typing import Any, List, Optional
 
-from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice, IPSWTest
+from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice
 from .parser import Parser
 from .swscan import SWSCAN
 
@@ -17,10 +17,10 @@ class _Client:
 
         return iDevice(**data)
 
-    async def ipsw(self, identifier: str, buildid: str) -> IPSWTest:
+    async def ipsw(self, identifier: str, buildid: str) -> IPSW:
         data = await Parser.ipsw(method="GET", endpoint=f"/ipsw/{identifier}/{buildid}")
 
-        return IPSWTest(**data)
+        return IPSW(**data)
 
     async def ipsw_version(self, version: str) -> List:
         data = await Parser.ipsw(method="GET", endpoint=f"/ipsw/{version}")

@@ -4,52 +4,6 @@ from typing import Optional, Union
 from dateutil import tz
 from hurry.filesize import alternative, size
 
-from dataclasses import dataclass
-from contextlib import suppress
-
-import plistlib
-import re
-
-
-class IntelMacOS:
-    """
-    A Python class for an Intel-based macOS Installation.
-
-    Arguments:
-    product_id: A product id of macOS Installation
-    """
-
-    def __init__(self, product_id) -> None:
-        self.product_id = product_id
-        self.title = ""
-        self.version = ""
-        self.build = ""
-        self.packages = []
-
-    def __repr__(self) -> str:
-        return f"{self.title} {self.version} ({self.build})"
-
-    def __str__(self) -> str:
-        return f"{self.title} {self.version} ({self.build})"
-
-
-@dataclass(repr=True)
-class IPSWTest:
-    identifier: str
-    buildid: str
-    version: str
-    url: str
-    filesize: int
-    sha1sum: str
-    md5sum: str
-    releasedate: Union[
-        str, None
-    ]  # sometimes Apple gives firmware release date as null, fuck
-    uploaddate: Union[
-        str, None
-    ]  # sometimes Apple gives firmware release date as null, fuck
-    signed: bool
-
 
 def to_dt(time: Optional[str]):
     if time is None:
@@ -210,6 +164,29 @@ class iDevice:
         self.bdid = bdid
         self.firmwares = firmwares
         self.boards = boards
+
+
+class IntelMacOS:
+    """
+    A Python class for an Intel-based macOS Installation.
+
+    Arguments:
+    product_id: A product id of macOS Installation
+    """
+
+    def __init__(self, product_id) -> None:
+        self.product_id = product_id
+        self.title = ""
+        self.version = ""
+        self.build = ""
+        self.postdate = ""
+        self.packages = []
+
+    def __repr__(self) -> str:
+        return f"{self.title} {self.version} ({self.build})"
+
+    def __str__(self) -> str:
+        return f"{self.title} {self.version} ({self.build})"
 
 
 class IntelMacOSPkg:

@@ -247,4 +247,8 @@ class SWSCAN:
             obj.title = name
             obj.version = version
 
+        obj.postdate = (
+            self.root.get("Products", {}).get(product, {}).get("PostDate", "")
+        )
+
         return obj
