@@ -3,9 +3,8 @@ from pyapple import Client
 
 
 async def sadf():
-    c = Client()
     d = datetime.now()
-    print(await c.available_macos())
+    print(await Client.available_macos())
     n = datetime.now()
     print(n - d)
 

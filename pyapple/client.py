@@ -6,33 +6,40 @@ from .model import IPSW, OTAIPSW, IPSWKeys, KeysObject, iDevice
 from .parser import Parser
 from .swscan import SWSCAN
 
+SWSCAN = SWSCAN()
+
 
 class _Client:
     def __init__(self) -> None:
-        self.SWSCAN = SWSCAN()
+        pass
 
-    async def device(self, identifier: str) -> iDevice:
+    @staticmethod
+    async def device(identifier: str) -> iDevice:
         data = await Parser.ipsw(method="GET", endpoint=f"/device/{identifier}")
         data["firmwares"] = [IPSW(**firmware) for firmware in data["firmwares"]]
 
         return iDevice(**data)
 
-    async def ipsw(self, identifier: str, buildid: str) -> IPSW:
+    @staticmethod
+    async def ipsw(identifier: str, buildid: str) -> IPSW:
         data = await Parser.ipsw(method="GET", endpoint=f"/ipsw/{identifier}/{buildid}")
 
         return IPSW(**data)
 
-    async def ipsw_version(self, version: str) -> List:
+    @staticmethod
+    async def ipsw_version(version: str) -> List:
         data = await Parser.ipsw(method="GET", endpoint=f"/ipsw/{version}")
 
         return [IPSW(**firmware) for firmware in data]
 
-    async def keys_device(self, identifier: str) -> List:
+    @staticmethod
+    async def keys_device(identifier: str) -> List:
         data = await Parser.ipsw(method="GET", endpoint=f"/keys/device/{identifier}")
 
         return [IPSWKeys(**keys) for keys in data]
 
-    async def keys(self, identifier: str, buildid: str) -> IPSWKeys:
+    @staticmethod
+    async def keys(identifier: str, buildid: str) -> IPSWKeys:
         data = await Parser.ipsw(
             method="GET", endpoint=f"/keys/ipsw/{identifier}/{buildid}"
         )
@@ -40,28 +47,31 @@ class _Client:
 
         return IPSWKeys(**data)
 
-    async def ota(self, identifier: str, buildid: str) -> OTAIPSW:
+    @staticmethod
+    async def ota(identifier: str, buildid: str) -> OTAIPSW:
         data = await Parser.ipsw(method="GET", endpoint=f"/ota/{identifier}/{buildid}")
 
         return OTAIPSW(**data)
 
-    async def ota_version(self, version: str) -> List:
+    @staticmethod
+    async def ota_version(version: str) -> List:
         data = await Parser.ipsw(method="GET", endpoint=f"/ota/{version}")
 
         return [OTAIPSW(**ota) for ota in data]
 
-    async def available_macos(self, seed: Optional[str] = "publicseed"):
-        return await self.SWSCAN.get_products(catalog_id=seed)
+    @staticmethod
+    async def available_macos(seed: Optional[str] = "publicseed"):
+        return await SWSCAN.get_products(catalog_id=seed)
 
+    @staticmethod
     async def get_macos(
-        self,
         title: Optional[str] = None,
         buildid: Optional[str] = None,
         version: Optional[str] = None,
         product_id: Optional[str] = None,
         seed: Optional[str] = "publicseed",
     ) -> List:
-        return await self.SWSCAN.get_package(
+        return await SWSCAN.get_package(
             title=title,
             build_id=buildid,
             version=version,
