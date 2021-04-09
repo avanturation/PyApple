@@ -27,10 +27,10 @@ class IntelMacOS:
         self.packages = []
 
     def __repr__(self) -> str:
-        return self.title
+        return f"{self.title} {self.version} ({self.build})"
 
     def __str__(self) -> str:
-        return self.title
+        return f"{self.title} {self.version} ({self.build})"
 
 
 @dataclass(repr=True)

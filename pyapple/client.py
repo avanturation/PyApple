@@ -55,13 +55,18 @@ class _Client:
 
     async def get_macos(
         self,
-        buildid: Optional[str],
-        version: Optional[str],
-        product_id: Optional[str],
+        title: Optional[str] = None,
+        buildid: Optional[str] = None,
+        version: Optional[str] = None,
+        product_id: Optional[str] = None,
         seed: Optional[str] = "publicseed",
     ) -> List:
         return await self.SWSCAN.get_package(
-            build_id=buildid, version=version, product_id=product_id, catalog_id=seed
+            title=title,
+            build_id=buildid,
+            version=version,
+            product_id=product_id,
+            catalog_id=seed,
         )
 
 
