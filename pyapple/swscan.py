@@ -48,13 +48,12 @@ MACOS_FULLNAME = {
 
 
 class SWSCAN:
-    def __init__(self, recovery: bool = False):
+    def __init__(self):
         self.HTTP = Parser()  # 커스텀 리퀘스트 보내는 클래스 - aiohttp 사용
         self.recovery_suffixes = ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
         self.min_macos = MIN_MACOS
         self.max_macos = MAX_MACOS
         self.macos_dict = []
-        self.fetch_recovery = recovery
 
     def build_url(self, catalog_id) -> str:
         catalog = catalog_id.lower()
@@ -87,13 +86,15 @@ class SWSCAN:
         catalog_data = bytes(raw_catalog, "utf-8")
         self.root = plistlib.loads(catalog_data)
 
-    async def get_products(self, catalog_id="publicrelease"):
+    async def get_products(
+        self, catalog_id="publicrelease", fetch_recovery: bool = False
+    ):
         macos_dict = []
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
         for p in self.root.get("Products", {}):
-            if not self.fetch_recovery:
+            if not fetch_recovery:
                 val = (
                     self.root.get("Products", {})
                     .get(p, {})
@@ -125,13 +126,14 @@ class SWSCAN:
         version: Optional[str],
         product_id: Optional[str],
         catalog_id="publicrelease",
+        fetch_recovery: bool = False,
     ):
         macos_dict = []
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
         for p in self.root.get("Products", {}):
-            if not self.fetch_recovery:
+            if not fetch_recovery:
                 val = (
                     self.root.get("Products", {})
                     .get(p, {})
@@ -154,7 +156,6 @@ class SWSCAN:
                         ]
                         macos_dict.append(obj)
             else:
-                # Find out if we have any of the recovery_suffixes
                 if any(
                     x
                     for x in self.root.get("Products", {})
