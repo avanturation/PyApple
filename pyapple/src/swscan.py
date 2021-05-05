@@ -3,8 +3,8 @@ import re
 from contextlib import suppress
 from typing import Optional
 
-from .model import IntelMacOS, IntelMacOSPkg
-from .parser import Parser
+from ..interface import MacOSProduct, Package
+from ..utils import AsyncRequest
 
 MIN_MACOS = 5
 MAX_MACOS = 16
@@ -49,7 +49,7 @@ MACOS_FULLNAME = {
 
 class SWSCAN:
     def __init__(self):
-        self.HTTP = Parser()  # 커스텀 리퀘스트 보내는 클래스 - aiohttp 사용
+        self.HTTP = AsyncRequest()
         self.recovery_suffixes = ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
         self.min_macos = MIN_MACOS
         self.max_macos = MAX_MACOS
@@ -104,7 +104,7 @@ class SWSCAN:
                 if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
                     "SharedSupport", ""
                 ).startswith("com.apple.pkg.InstallAssistant"):
-                    macos_dict.append(await self.get_metadata(p, IntelMacOS(p)))
+                    macos_dict.append(await self.get_metadata(p, MacOSProduct(p)))
             else:
                 # Find out if we have any of the recovery_suffixes
                 if any(
@@ -115,7 +115,7 @@ class SWSCAN:
                     if x["URL"].endswith(self.recovery_suffixes)
                 ):
 
-                    macos_dict.append(await self.get_metadata(p, IntelMacOS(p)))
+                    macos_dict.append(await self.get_metadata(p, MacOSProduct(p)))
 
         return macos_dict
 
@@ -143,7 +143,7 @@ class SWSCAN:
                 if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
                     "SharedSupport", ""
                 ).startswith("com.apple.pkg.InstallAssistant"):
-                    obj = await self.get_metadata(p, IntelMacOS(p))
+                    obj = await self.get_metadata(p, MacOSProduct(p))
                     if (
                         obj.title == title
                         or obj.build == build_id
@@ -151,7 +151,7 @@ class SWSCAN:
                         or p == product_id
                     ):
                         obj.packages = [
-                            IntelMacOSPkg(url=package["URL"], filesize=package["Size"])
+                            Package(url=package["URL"], filesize=package["Size"])
                             for package in self.root["Products"][p]["Packages"]
                         ]
                         macos_dict.append(obj)
@@ -163,7 +163,7 @@ class SWSCAN:
                     .get("Packages", [])
                     if x["URL"].endswith(self.recovery_suffixes)
                 ):
-                    obj = await self.get_metadata(p, IntelMacOS(p))
+                    obj = await self.get_metadata(p, MacOSProduct(p))
                     if (
                         obj.title == title
                         or obj.build == build_id
@@ -171,15 +171,14 @@ class SWSCAN:
                         or p == product_id
                     ):
                         obj.packages = [
-                            IntelMacOSPkg(url=package["URL"], filesize=package["Size"])
+                            MacOSProduct(url=package["URL"], filesize=package["Size"])
                             for package in self.root["Products"][p]["Packages"]
                         ]
                         macos_dict.append(obj)
 
         return macos_dict
 
-    async def get_metadata(self, product, obj: IntelMacOS):
-
+    async def get_metadata(self, product, obj: MacOSProduct):
         try:
             resp = await self.HTTP.request(
                 self.root["Products"][product]["ServerMetadataURL"]
@@ -207,7 +206,7 @@ class SWSCAN:
                     .split("</string>")[0]
                 )
 
-            obj.build = build
+            obj.buildid = build
 
         except:
             dist_file = await self.HTTP.request(
@@ -244,11 +243,11 @@ class SWSCAN:
             with suppress(Exception):
                 name = re.search(r"<title>(.+?)</title>", dist_file).group(1)
 
-            obj.build = build
+            obj.buildid = build
             obj.title = name
             obj.version = version
 
-        obj.postdate = (
+        obj.upload_date = (
             self.root.get("Products", {}).get(product, {}).get("PostDate", "")
         )
 

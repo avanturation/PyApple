@@ -9,7 +9,7 @@ from .swscan import SWSCAN
 SWSCAN = SWSCAN()
 
 
-class _Client:
+class RealClient:
     def __init__(self) -> None:
         pass
 
@@ -80,7 +80,7 @@ class _Client:
         )
 
 
-class Client(_Client):
+class Client(RealClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

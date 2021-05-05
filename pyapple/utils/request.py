@@ -1,13 +1,13 @@
 import aiohttp
 
-from .exceptions import HTTPException
+from ..interface import HTTPException
 
 SWSCAN_BASE = "https://swscan.apple.com/content/catalogs/others"
 IPSW_BASE = "https://api.ipsw.me/v4"
 CYDIA_BASE = " https://api.parcility.co/db"
 
 
-class Parser:
+class AsyncRequest:
     @staticmethod
     async def ipsw(method: str, endpoint: str):
         url = IPSW_BASE + endpoint

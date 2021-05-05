@@ -1,45 +1,11 @@
-from datetime import datetime
 from typing import Optional, Union
 
-from dateutil import tz
 from hurry.filesize import alternative, size
 
-
-class BaseModel:
-    def __repr__(self) -> str:
-        return str(self.__dict__)
-
-    def __str__(self) -> str:
-        return str(self.__dict__)
-
-
-def to_dt(time: Optional[str]):
-    if time is None:
-        return time  # early return
-
-    dest = tz.tzutc()
-    obj = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
-    obj = obj.replace(tzinfo=dest)
-    return obj
+from .base import BaseModel, to_dt
 
 
 class IPSW(BaseModel):
-    """
-    A Python class for Regular IPSW files.
-
-    Arguments:
-    identifier: iDevice identifier for IPSW
-    buildid: Build ID of IPSW
-    version: OS Version of IPSW
-    url: Download link of IPSW
-    filesize: Size of IPSW file (in integer)
-    sha1: SHA1 sum of IPSW file
-    md5: MD5 sum of IPSW file
-    releasedate: Released date of IPSW (in string)
-    uploaddate: Uploaded date of IPSW (in string)
-    signed: A bool whether tells IPSW is still signed
-    """
-
     def __init__(
         self,
         identifier: str,
@@ -69,7 +35,7 @@ class IPSW(BaseModel):
         self.uploaddate = to_dt(uploaddate)
 
 
-class KeysObject(BaseModel):
+class Keys(BaseModel):
     def __init__(
         self,
         image: str,
@@ -140,19 +106,6 @@ class OTAIPSW(BaseModel):
 
 
 class iDevice(BaseModel):
-    """
-    A Python class for an iDevice.
-
-    Arguments:
-    name: Name of iDevice
-    identifier: Identifier of iDevice
-    boardconfig: Boardconfig of iDevice
-    platform: CPU Platform of iDevice
-    cpid: CPID of iDevice
-    bdid: BDID of iDevice
-    firmwares: List of available firmwares of iDevice
-    """
-
     def __init__(
         self,
         name: str,
@@ -172,32 +125,3 @@ class iDevice(BaseModel):
         self.bdid = bdid
         self.firmwares = firmwares
         self.boards = boards
-
-
-class IntelMacOS(BaseModel):
-    """
-    A Python class for an Intel-based macOS Installation.
-
-    Arguments:
-    product_id: A product id of macOS Installation
-    """
-
-    def __init__(self, product_id) -> None:
-        self.product_id = product_id
-        self.title = ""
-        self.version = ""
-        self.build = ""
-        self.postdate = ""
-        self.packages = []
-
-
-class IntelMacOSPkg(BaseModel):
-    def __init__(self, url: str, filesize: int) -> None:
-        self.filename = url.split("/")[-1]
-        self.uri = url
-        self.filesize = (filesize, size(filesize, system=alternative))
-
-
-class CydiaPackage(BaseModel):
-    def __init__(self) -> None:
-        pass
