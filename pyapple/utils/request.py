@@ -1,4 +1,4 @@
-import aiohttp
+from aiohttp import ClientSession
 
 from ..interface import HTTPException
 
@@ -9,10 +9,10 @@ CYDIA_BASE = " https://api.parcility.co/db"
 
 class AsyncRequest:
     @staticmethod
-    async def ipsw(method: str, endpoint: str):
+    async def ipsw(method: str, endpoint: str, **kwargs):
         url = IPSW_BASE + endpoint
-        async with aiohttp.ClientSession() as session:
-            async with session.request(method, url) as resp:
+        async with ClientSession() as session:
+            async with session.request(method, url, params=kwargs) as resp:
                 data = await resp.json(encoding="utf-8")
 
                 if resp.status == 200:
@@ -21,10 +21,10 @@ class AsyncRequest:
                 raise HTTPException(resp.staus, url)
 
     @staticmethod
-    async def cydia(endpoint: str):
+    async def cydia(endpoint: str, **kwargs):
         url = CYDIA_BASE + endpoint
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
+        async with ClientSession() as session:
+            async with session.get(url, params=kwargs) as resp:
                 data = await resp.json(encoding="utf-8")
 
                 if data["status"] and data["code"] == 200:
@@ -33,10 +33,10 @@ class AsyncRequest:
                 raise HTTPException(data["code"], url)
 
     @staticmethod
-    async def swscan(index: str, headers=None):
+    async def swscan(index: str, headers=None, **kwargs):
         url = SWSCAN_BASE + index
-        async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url) as resp:
+        async with ClientSession(headers=headers) as session:
+            async with session.get(url, params=kwargs) as resp:
                 data = await resp.text()
 
                 if resp.status == 200:
@@ -45,9 +45,9 @@ class AsyncRequest:
                 raise HTTPException(resp.staus, url)
 
     @staticmethod
-    async def request(url: str):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
+    async def request(url: str, **kwargs):
+        async with ClientSession() as session:
+            async with session.get(url, params=kwargs) as resp:
                 data = await resp.text()
 
                 if resp.status == 200:

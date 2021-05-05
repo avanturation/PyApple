@@ -69,7 +69,7 @@ class RealClient:
         buildid: Optional[str] = None,
         version: Optional[str] = None,
         product_id: Optional[str] = None,
-        seed: Optional[str] = "publicseed",
+        seed: Optional[str] = "publicrelease",
     ) -> List:
         return await SWSCAN.get_package(
             title=title,

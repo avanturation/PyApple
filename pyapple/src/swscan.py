@@ -6,9 +6,6 @@ from typing import Optional
 from ..interface import MacOSProduct, Package
 from ..utils import AsyncRequest
 
-MIN_MACOS = 5
-MAX_MACOS = 16
-
 OSINSTALL = {
     "User-Agent": "osinstallersetupplaind (unknown version) CFNetwork/720.5.7 Darwin/14.5.0 (x86_64)"
 }
@@ -44,35 +41,34 @@ MACOS_FULLNAME = {
     "mojave": "10.14",
     "catalina": "10.15",
     "big sur": "10.16",
+    # "macos12_candidate1": "10.17",
+    # "macos12_candidate2": "12.0",
 }
 
 
 class SWSCAN:
     def __init__(self):
         self.HTTP = AsyncRequest()
-        self.recovery_suffixes = ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
-        self.min_macos = MIN_MACOS
-        self.max_macos = MAX_MACOS
-        self.macos_dict = []
+        self.min_macos = 5
+        self.max_macos = 16
 
     def build_url(self, catalog_id) -> str:
         catalog = catalog_id.lower()
-        version = self.max_macos
         url = "/index-"
 
         url += "-".join(
             [
                 MACOS_NAME[str(x)] if str(x) in MACOS_NAME else "10." + str(x)
-                for x in reversed(range(self.min_macos, version + 1))
+                for x in reversed(range(self.min_macos, self.max_macos + 1))
             ]
         )
 
         url += ".merged-1.sucatalog"
 
         ver_s = (
-            MACOS_NAME[str(version)]
-            if str(version) in MACOS_NAME
-            else "10." + str(version)
+            MACOS_NAME[str(self.max_macos)]
+            if str(self.max_macos) in MACOS_NAME
+            else "10." + str(self.max_macos)
         )
 
         if CATLOG_SUF[catalog]:
@@ -81,8 +77,9 @@ class SWSCAN:
         return url
 
     async def fetch_catalog(self, catalog_id="publicrelease"):
-        url = self.build_url(catalog_id)
-        raw_catalog = await self.HTTP.swscan(url, headers=OSINSTALL)
+        raw_catalog = await self.HTTP.swscan(
+            self.build_url(catalog_id), headers=OSINSTALL
+        )
         catalog_data = bytes(raw_catalog, "utf-8")
         self.root = plistlib.loads(catalog_data)
 
@@ -106,13 +103,14 @@ class SWSCAN:
                 ).startswith("com.apple.pkg.InstallAssistant"):
                     macos_dict.append(await self.get_metadata(p, MacOSProduct(p)))
             else:
-                # Find out if we have any of the recovery_suffixes
                 if any(
                     x
                     for x in self.root.get("Products", {})
                     .get(p, {})
                     .get("Packages", [])
-                    if x["URL"].endswith(self.recovery_suffixes)
+                    if x["URL"].endswith(
+                        ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
+                    )
                 ):
 
                     macos_dict.append(await self.get_metadata(p, MacOSProduct(p)))
@@ -161,7 +159,9 @@ class SWSCAN:
                     for x in self.root.get("Products", {})
                     .get(p, {})
                     .get("Packages", [])
-                    if x["URL"].endswith(self.recovery_suffixes)
+                    if x["URL"].endswith(
+                        ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
+                    )
                 ):
                     obj = await self.get_metadata(p, MacOSProduct(p))
                     if (
