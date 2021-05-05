@@ -5,6 +5,14 @@ from dateutil import tz
 from hurry.filesize import alternative, size
 
 
+class BaseModel:
+    def __repr__(self) -> str:
+        return str(self.__dict__)
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
+
+
 def to_dt(time: Optional[str]):
     if time is None:
         return time  # early return
@@ -15,7 +23,7 @@ def to_dt(time: Optional[str]):
     return obj
 
 
-class IPSW:
+class IPSW(BaseModel):
     """
     A Python class for Regular IPSW files.
 
@@ -61,7 +69,7 @@ class IPSW:
         self.uploaddate = to_dt(uploaddate)
 
 
-class KeysObject:
+class KeysObject(BaseModel):
     def __init__(
         self,
         image: str,
@@ -79,7 +87,7 @@ class KeysObject:
         self.date = to_dt(date)
 
 
-class IPSWKeys:
+class IPSWKeys(BaseModel):
     def __init__(
         self,
         identifier: str,
@@ -99,7 +107,7 @@ class IPSWKeys:
         self.keys = keys
 
 
-class OTAIPSW:
+class OTAIPSW(BaseModel):
     def __init__(
         self,
         identifier: str,
@@ -131,7 +139,7 @@ class OTAIPSW:
         self.signed = signed
 
 
-class iDevice:
+class iDevice(BaseModel):
     """
     A Python class for an iDevice.
 
@@ -166,7 +174,7 @@ class iDevice:
         self.boards = boards
 
 
-class IntelMacOS:
+class IntelMacOS(BaseModel):
     """
     A Python class for an Intel-based macOS Installation.
 
@@ -182,20 +190,14 @@ class IntelMacOS:
         self.postdate = ""
         self.packages = []
 
-    def __repr__(self) -> str:
-        return f"{self.title} {self.version} ({self.build})"
 
-    def __str__(self) -> str:
-        return f"{self.title} {self.version} ({self.build})"
-
-
-class IntelMacOSPkg:
+class IntelMacOSPkg(BaseModel):
     def __init__(self, url: str, filesize: int) -> None:
         self.filename = url.split("/")[-1]
         self.uri = url
         self.filesize = (filesize, size(filesize, system=alternative))
 
 
-class CydiaPackage:
+class CydiaPackage(BaseModel):
     def __init__(self) -> None:
         pass

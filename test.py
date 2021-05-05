@@ -3,10 +3,15 @@ from pyapple import Client
 
 
 async def sadf():
-    d = datetime.now()
-    print(await Client.available_macos())
-    n = datetime.now()
-    print(n - d)
+    print(
+        await Client.get_macos(
+            title="macOS Big Sur",
+            version="11.3.1",
+            buildid=None,
+            product_id=None,
+            seed="publicrelease",
+        )
+    )
 
 
 import asyncio

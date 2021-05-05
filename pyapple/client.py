@@ -60,7 +60,7 @@ class _Client:
         return [OTAIPSW(**ota) for ota in data]
 
     @staticmethod
-    async def available_macos(seed: Optional[str] = "publicseed"):
+    async def available_macos(seed: Optional[str] = "publicrelease"):
         return await SWSCAN.get_products(catalog_id=seed)
 
     @staticmethod

@@ -209,7 +209,7 @@ class SWSCAN:
 
             obj.build = build
 
-        except KeyError:
+        except:
             dist_file = await self.HTTP.request(
                 self.root["Products"][product]["Distributions"]["English"]
             )
