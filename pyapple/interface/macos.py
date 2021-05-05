@@ -4,13 +4,6 @@ from .base import BaseModel
 
 
 class MacOSProduct(BaseModel):
-    """
-    A Python class for an Intel-based macOS Installation.
-
-    Arguments:
-    product_id: A product id of macOS Installation
-    """
-
     def __init__(self, product_id) -> None:
         self.product_id = product_id
         self.title = ""
