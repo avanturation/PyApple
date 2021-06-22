@@ -1,4 +1,5 @@
 from aiohttp import ClientSession
+from typing import Optional, Any
 
 from ..interface import HTTPException
 
@@ -7,50 +8,57 @@ IPSW_BASE = "https://api.ipsw.me/v4"
 CYDIA_BASE = " https://api.parcility.co/db"
 
 
-class AsyncRequest:
-    @staticmethod
-    async def ipsw(method: str, endpoint: str, **kwargs):
+class Base:
+    def __init__(self) -> None:
+        self.session: Optional[ClientSession] = None
+
+    async def request(
+        self,
+        url: str,
+        method: str,
+        **kwargs: Any,
+    ):
+        if not self.session or self.session.closed:
+            self.session = ClientSession()
+
+        resp = await self.session.request(method, url, **kwargs)
+
+        if resp.status == 200:
+            return resp
+
+        else:
+            raise HTTPException(resp.staus, url)
+
+    async def post(self, url: str, **kwargs: Any):
+        if not self.session or self.session.closed:
+            self.session = ClientSession()
+
+        return await self.request(url, "POST", **kwargs)
+
+    async def get(self, url: str, **kwargs: Any):
+        if not self.session or self.session.closed:
+            self.session = ClientSession()
+
+        return await self.request(url, "GET", **kwargs)
+
+
+class AsyncRequest(Base):
+    async def ipsw(self, endpoint: str, **kwargs):
         url = IPSW_BASE + endpoint
-        async with ClientSession() as session:
-            async with session.request(method, url, params=kwargs) as resp:
-                data = await resp.json(encoding="utf-8")
+        raw = await self.get(url, **kwargs)
+        return await raw.json(encoding="utf-8")
 
-                if resp.status == 200:
-                    return data
-
-                raise HTTPException(resp.staus, url)
-
-    @staticmethod
-    async def cydia(endpoint: str, **kwargs):
+    async def cydia(self, endpoint: str, **kwargs):
         url = CYDIA_BASE + endpoint
-        async with ClientSession() as session:
-            async with session.get(url, params=kwargs) as resp:
-                data = await resp.json(encoding="utf-8")
+        raw = await self.get(url, **kwargs)
+        data = await raw.json(encoding="utf-8")
 
-                if data["status"] and data["code"] == 200:
-                    return data
+        if data["status"] and data["code"] == 200:
+            return data
 
-                raise HTTPException(data["code"], url)
+        raise HTTPException(data["code"], url)
 
-    @staticmethod
-    async def swscan(index: str, headers=None, **kwargs):
+    async def swscan(self, index: str, headers=None, **kwargs):
         url = SWSCAN_BASE + index
-        async with ClientSession(headers=headers) as session:
-            async with session.get(url, params=kwargs) as resp:
-                data = await resp.text()
-
-                if resp.status == 200:
-                    return data
-
-                raise HTTPException(resp.staus, url)
-
-    @staticmethod
-    async def request(url: str, **kwargs):
-        async with ClientSession() as session:
-            async with session.get(url, params=kwargs) as resp:
-                data = await resp.text()
-
-                if resp.status == 200:
-                    return data
-
-                raise HTTPException(resp.staus, url)
+        raw = await self.get(url, headers=headers, **kwargs)
+        return await raw.text()

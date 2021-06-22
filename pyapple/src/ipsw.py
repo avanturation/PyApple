@@ -1,4 +1,4 @@
-from typing import List
+from typing import Annotated, List
 
 from ..interface import IPSW, OTAIPSW, IPSWKeys, Keys, iDevice
 from ..utils import AsyncRequest
@@ -6,56 +6,41 @@ from ..utils import AsyncRequest
 
 class IPSWStuff:
     def __init__(self) -> None:
-        pass
+        self.HTTP = AsyncRequest()
 
-    @staticmethod
-    async def device(identifier: str) -> iDevice:
-        data = await AsyncRequest.ipsw(method="GET", endpoint=f"/device/{identifier}")
+    async def device(self, identifier: str) -> iDevice:
+        data = await self.HTTP.ipsw(endpoint=f"/device/{identifier}")
         data["firmwares"] = [IPSW(**firmware) for firmware in data["firmwares"]]
 
         return iDevice(**data)
 
-    @staticmethod
-    async def ipsw(identifier: str, buildid: str) -> IPSW:
-        data = await AsyncRequest.ipsw(
-            method="GET", endpoint=f"/ipsw/{identifier}/{buildid}"
-        )
+    async def ipsw(self, identifier: str, buildid: str) -> IPSW:
+        data = await self.HTTP.ipsw(endpoint=f"/ipsw/{identifier}/{buildid}")
 
         return IPSW(**data)
 
-    @staticmethod
-    async def ipsw_version(version: str) -> List:
-        data = await AsyncRequest.ipsw(method="GET", endpoint=f"/ipsw/{version}")
+    async def ipsw_version(self, version: str) -> List:
+        data = await self.HTTP.ipsw(endpoint=f"/ipsw/{version}")
 
         return [IPSW(**firmware) for firmware in data]
 
-    @staticmethod
-    async def keys_device(identifier: str) -> List:
-        data = await AsyncRequest.ipsw(
-            method="GET", endpoint=f"/keys/device/{identifier}"
-        )
+    async def keys_device(self, identifier: str) -> List:
+        data = await self.HTTP.ipsw(endpoint=f"/keys/device/{identifier}")
 
         return [IPSWKeys(**keys) for keys in data]
 
-    @staticmethod
-    async def keys(identifier: str, buildid: str) -> IPSWKeys:
-        data = await AsyncRequest.ipsw(
-            method="GET", endpoint=f"/keys/ipsw/{identifier}/{buildid}"
-        )
+    async def keys(self, identifier: str, buildid: str) -> IPSWKeys:
+        data = await self.HTTP.ipsw(endpoint=f"/keys/ipsw/{identifier}/{buildid}")
         data["keys"] = [Keys(**keys) for keys in data["keys"]]
 
         return IPSWKeys(**data)
 
-    @staticmethod
-    async def ota(identifier: str, buildid: str) -> OTAIPSW:
-        data = await AsyncRequest.ipsw(
-            method="GET", endpoint=f"/ota/{identifier}/{buildid}"
-        )
+    async def ota(self, identifier: str, buildid: str) -> OTAIPSW:
+        data = await self.HTTP.ipsw(endpoint=f"/ota/{identifier}/{buildid}")
 
         return OTAIPSW(**data)
 
-    @staticmethod
-    async def ota_version(version: str) -> List:
-        data = await AsyncRequest.ipsw(method="GET", endpoint=f"/ota/{version}")
+    async def ota_version(self, version: str) -> List:
+        data = await self.HTTP.ipsw(endpoint=f"/ota/{version}")
 
         return [OTAIPSW(**ota) for ota in data]
