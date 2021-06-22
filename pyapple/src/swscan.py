@@ -41,8 +41,7 @@ MACOS_FULLNAME = {
     "mojave": "10.14",
     "catalina": "10.15",
     "big sur": "10.16",
-    # "macos12_candidate1": "10.17",
-    # "macos12_candidate2": "12.0",
+    "monterey": "10.17",
 }
 
 
