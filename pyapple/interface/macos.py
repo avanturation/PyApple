@@ -16,5 +16,5 @@ class MacOSProduct(BaseModel):
 class Package(BaseModel):
     def __init__(self, url: str, filesize: int) -> None:
         self.filename = url.split("/")[-1]
-        self.uri = url
+        self.url = url
         self.filesize = (filesize, size(filesize, system=alternative))

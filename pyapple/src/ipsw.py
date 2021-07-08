@@ -7,6 +7,7 @@ from ..utils import AsyncRequest
 class IPSW:
     def __init__(self) -> None:
         self.HTTP = AsyncRequest()
+        super().__init__()
 
     async def device(self, identifier: str) -> iDevice:
         data = await self.HTTP.ipsw(endpoint=f"/device/{identifier}")

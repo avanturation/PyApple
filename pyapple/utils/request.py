@@ -27,7 +27,7 @@ class Base:
             return resp
 
         else:
-            raise HTTPException(resp.staus, url)
+            raise HTTPException(resp.status, url)
 
     async def post(self, url: str, **kwargs: Any):
         if not self.session or self.session.closed:

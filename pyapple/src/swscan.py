@@ -1,7 +1,7 @@
 import plistlib
 import re
 from contextlib import suppress
-from typing import Optional
+from typing import Optional, List
 
 from ..interface import MacOSProduct, Package
 from ..utils import AsyncRequest
@@ -50,6 +50,16 @@ class SWSCAN:
         self.HTTP = AsyncRequest()
         self.min_macos = 5
         self.max_macos = 16
+        super().__init__()
+
+    def apply_metadata(self, metadata: List, product_id) -> MacOSProduct:
+        product = MacOSProduct(product_id)
+        product.title = metadata[0]
+        product.version = metadata[1]
+        product.buildid = metadata[2]
+        product.upload_date = metadata[3]
+
+        return product
 
     def build_url(self, catalog_id) -> str:
         catalog = catalog_id.lower()
@@ -114,6 +124,7 @@ class SWSCAN:
 
                     macos_dict.append(await self.get_metadata(p, MacOSProduct(p)))
 
+        self.HTTP.session.close()
         return macos_dict
 
     async def get_package(
@@ -121,7 +132,6 @@ class SWSCAN:
         title: Optional[str],
         build_id: Optional[str],
         version: Optional[str],
-        product_id: Optional[str],
         catalog_id="publicrelease",
         fetch_recovery: bool = False,
     ):
@@ -140,12 +150,12 @@ class SWSCAN:
                 if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
                     "SharedSupport", ""
                 ).startswith("com.apple.pkg.InstallAssistant"):
-                    obj = await self.get_metadata(p, MacOSProduct(p))
+                    metadata = await self.get_metadata(p)
+                    obj = self.apply_metadata(metadata, p)
                     if (
                         obj.title == title
-                        or obj.build == build_id
+                        or obj.buildid == build_id
                         or obj.version == version
-                        or p == product_id
                     ):
                         obj.packages = [
                             Package(url=package["URL"], filesize=package["Size"])
@@ -162,35 +172,37 @@ class SWSCAN:
                         ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
                     )
                 ):
-                    obj = await self.get_metadata(p, MacOSProduct(p))
+                    metadata = await self.get_metadata(p)
+                    obj = self.apply_metadata(metadata, p)
                     if (
                         obj.title == title
-                        or obj.build == build_id
+                        or obj.buildid == build_id
                         or obj.version == version
-                        or p == product_id
                     ):
                         obj.packages = [
-                            MacOSProduct(url=package["URL"], filesize=package["Size"])
+                            Package(url=package["URL"], filesize=package["Size"])
                             for package in self.root["Products"][p]["Packages"]
                         ]
                         macos_dict.append(obj)
 
+        await self.HTTP.session.close()
         return macos_dict
 
-    async def get_metadata(self, product, obj: MacOSProduct):
+    async def get_metadata(self, product):
         try:
             resp = await self.HTTP.request(
-                self.root["Products"][product]["ServerMetadataURL"]
+                method="GET", url=self.root["Products"][product]["ServerMetadataURL"]
             )
+            resp = await resp.text(encoding="utf-8")
             smd = plistlib.loads(bytes(resp, "utf-8"))
-
-            obj.title = smd["localization"]["English"]["title"]
-            obj.version = smd["CFBundleShortVersionString"]
+            name = smd["localization"]["English"]["title"]
+            version = smd["CFBundleShortVersionString"]
 
             dist_file = await self.HTTP.request(
-                self.root["Products"][product]["Distributions"]["English"]
+                method="GET",
+                url=self.root["Products"][product]["Distributions"]["English"],
             )
-            build = version = name = "Unknown"
+            dist_file = await dist_file.text(encoding="utf-8")
 
             build_search = (
                 "macOSProductBuildVersion"
@@ -205,13 +217,12 @@ class SWSCAN:
                     .split("</string>")[0]
                 )
 
-            obj.buildid = build
-
         except:
             dist_file = await self.HTTP.request(
-                self.root["Products"][product]["Distributions"]["English"]
+                url=self.root["Products"][product]["Distributions"]["English"],
+                method="GET",
             )
-            build = version = name = "Unknown"
+            dist_file = await dist_file.text(encoding="utf-8")
 
             build_search = (
                 "macOSProductBuildVersion"
@@ -242,12 +253,9 @@ class SWSCAN:
             with suppress(Exception):
                 name = re.search(r"<title>(.+?)</title>", dist_file).group(1)
 
-            obj.buildid = build
-            obj.title = name
-            obj.version = version
-
-        obj.upload_date = (
-            self.root.get("Products", {}).get(product, {}).get("PostDate", "")
-        )
-
-        return obj
+        return [
+            name,
+            version,
+            build,
+            self.root.get("Products", {}).get(product, {}).get("PostDate", ""),
+        ]
