@@ -4,7 +4,7 @@ from ..interface import IPSW, OTAIPSW, IPSWKeys, Keys, iDevice
 from ..utils import AsyncRequest
 
 
-class IPSWStuff:
+class IPSW:
     def __init__(self) -> None:
         self.HTTP = AsyncRequest()
 

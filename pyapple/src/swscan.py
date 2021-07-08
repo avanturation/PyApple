@@ -14,10 +14,10 @@ SWUPDATE = {
 }
 
 CATLOG_SUF = {
-    "publicseed": "beta",
+    "publicbeta": "beta",
     "publicrelease": "",
     "customerseed": "customerseed",
-    "developerseed": "seed",
+    "developerbeta": "seed",
 }
 
 MACOS_NAME = {

@@ -1,3 +1,3 @@
-class Img4Img3Stuff:
+class BootImage:
     def __init__(self) -> None:
         pass

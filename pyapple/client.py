@@ -1,14 +1,15 @@
 import asyncio
 import functools
 from typing import Any
+from src import SWSCAN, IPSW
 
 
-class RealClient:
+class RealClient(IPSW, SWSCAN):
     def __init__(self) -> None:
         pass
 
 
-class Client(RealClient):
+class Apple(RealClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
