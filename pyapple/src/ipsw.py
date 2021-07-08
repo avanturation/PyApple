@@ -45,3 +45,11 @@ class IPSW:
         data = await self.HTTP.ipsw(endpoint=f"/ota/{version}")
 
         return [OTAIPSW(**ota) for ota in data]
+
+    async def ota_docs(self, identifier: str, version: str):
+        data = await self.HTTP.ipsw(
+            endpoint=f"/ota/documentation/{identifier}/{version}",
+            headers={"Content-Type": "application/json"},
+        )
+
+        print(data)
