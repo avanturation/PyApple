@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import List
 
 from ..interface import IPSW, OTAIPSW, IPSWKeys, Keys, iDevice
 from ..utils import AsyncRequest

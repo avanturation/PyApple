@@ -10,7 +10,7 @@ async def sadf():
             title="macOS",
             version="12.0",
             build_id=None,
-            catalog_id="developerbeta",
+            catalog_id="publicrelease",
         )
     )
 

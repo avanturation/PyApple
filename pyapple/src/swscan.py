@@ -52,7 +52,7 @@ class SWSCAN:
         self.max_macos = 16
         super().__init__()
 
-    def apply_metadata(self, metadata: List, product_id) -> MacOSProduct:
+    def apply_metadata(self, metadata: List, product_id: str) -> MacOSProduct:
         product = MacOSProduct(product_id)
         product.title = metadata[0]
         product.version = metadata[1]
@@ -61,7 +61,7 @@ class SWSCAN:
 
         return product
 
-    def build_url(self, catalog_id) -> str:
+    def build_url(self, catalog_id: str) -> str:
         catalog = catalog_id.lower()
         url = "/index-"
 
@@ -110,7 +110,8 @@ class SWSCAN:
                 if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
                     "SharedSupport", ""
                 ).startswith("com.apple.pkg.InstallAssistant"):
-                    macos_dict.append(await self.get_metadata(p, MacOSProduct(p)))
+                    metadata = await self.get_metadata(p)
+                    macos_dict.append(self.apply_metadata(metadata, p))
             else:
                 if any(
                     x
@@ -121,10 +122,10 @@ class SWSCAN:
                         ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
                     )
                 ):
+                    metadata = await self.get_metadata(p)
+                    macos_dict.append(self.apply_metadata(metadata, p))
 
-                    macos_dict.append(await self.get_metadata(p, MacOSProduct(p)))
-
-        self.HTTP.session.close()
+        await self.HTTP.session.close()
         return macos_dict
 
     async def get_package(
@@ -188,10 +189,13 @@ class SWSCAN:
         await self.HTTP.session.close()
         return macos_dict
 
-    async def get_metadata(self, product):
+    async def get_metadata(self, product_id: str, catalog_id="publicrelease"):
+        if not hasattr(self, "root"):
+            await self.fetch_catalog(catalog_id)
+
         try:
             resp = await self.HTTP.request(
-                method="GET", url=self.root["Products"][product]["ServerMetadataURL"]
+                method="GET", url=self.root["Products"][product_id]["ServerMetadataURL"]
             )
             resp = await resp.text(encoding="utf-8")
             smd = plistlib.loads(bytes(resp, "utf-8"))
@@ -200,7 +204,7 @@ class SWSCAN:
 
             dist_file = await self.HTTP.request(
                 method="GET",
-                url=self.root["Products"][product]["Distributions"]["English"],
+                url=self.root["Products"][product_id]["Distributions"]["English"],
             )
             dist_file = await dist_file.text(encoding="utf-8")
 
@@ -219,7 +223,7 @@ class SWSCAN:
 
         except:
             dist_file = await self.HTTP.request(
-                url=self.root["Products"][product]["Distributions"]["English"],
+                url=self.root["Products"][product_id]["Distributions"]["English"],
                 method="GET",
             )
             dist_file = await dist_file.text(encoding="utf-8")
@@ -257,5 +261,5 @@ class SWSCAN:
             name,
             version,
             build,
-            self.root.get("Products", {}).get(product, {}).get("PostDate", ""),
+            self.root.get("Products", {}).get(product_id, {}).get("PostDate", ""),
         ]
