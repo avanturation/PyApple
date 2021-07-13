@@ -1,15 +1,15 @@
-from hurry.filesize import alternative, size
-
 from .base import BaseModel
 
 
 class MacOSProduct(BaseModel):
-    def __init__(self, product_id) -> None:
+    def __init__(
+        self, product_id: str, title: str, version: str, buildid: str, postdate
+    ) -> None:
         self.product_id = product_id
-        self.title = ""
-        self.version = ""
-        self.buildid = ""
-        self.upload_date = ""
+        self.title = title
+        self.version = version
+        self.buildid = buildid
+        self.postdate = postdate
         self.packages = []
 
 
@@ -17,4 +17,4 @@ class Package(BaseModel):
     def __init__(self, url: str, filesize: int) -> None:
         self.filename = url.split("/")[-1]
         self.url = url
-        self.filesize = (filesize, size(filesize, system=alternative))
+        self.filesize = filesize

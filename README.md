@@ -4,13 +4,21 @@
 
 ## Features
 
-* Check IPSW with iDevice identifier, and build id (including Apple Silicon Macs)
+* Get IPSW firmware for an iDevice
 
-* Get information of OTA Packages
+* Get information of OTA Packages and OTA docs
 
-* Get all avaliable macOS (Intel-based)
+* Get packages and metadata of available MacOS (includes Developer Beta and Public Beta)
 
-* Download specific macOS (Intel-based)
+* Download IPSW, MacOS, OTA Firmware
+
+* Get information of cydia tweak and repo.
+
+* Extract SHSH2 blobs of an iDevice
+
+* Decode Img4 and Img3 binaries
+
+these features will be introduced in PyApple v2
 
 ## Example
 

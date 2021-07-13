@@ -1,7 +1,5 @@
 from typing import Optional, Union
 
-from hurry.filesize import alternative, size
-
 from .base import BaseModel, to_dt
 
 
@@ -27,7 +25,7 @@ class IPSW(BaseModel):
         self.buildid = buildid
         self.version = version
         self.uri = url
-        self.filesize = (filesize, size(filesize, system=alternative))
+        self.filesize = filesize
         self.sha1sum = sha1sum
         self.md5sum = md5sum
         self.signed = signed
@@ -96,7 +94,7 @@ class OTAIPSW(BaseModel):
         self.buildid = buildid
         self.version = version
         self.uri = url
-        self.filesize = (filesize, size(filesize, system=alternative))
+        self.filesize = filesize
         self.prerequisitebuildid = prerequisitebuildid
         self.prerequisiteversion = prerequisiteversion
         self.release_type = release_type

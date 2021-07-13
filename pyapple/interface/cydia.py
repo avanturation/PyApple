@@ -1,7 +1,5 @@
 from typing import Optional, Union
 
-from hurry.filesize import alternative, size
-
 from .base import BaseModel, to_dt
 
 

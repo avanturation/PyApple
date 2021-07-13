@@ -14,10 +14,10 @@ SWUPDATE = {
 }
 
 CATLOG_SUF = {
-    "publicbeta": "beta",
-    "publicrelease": "",
+    "publicbeta": "beta",  # Apple Beta Software Program
+    "publicrelease": "",  # Public Release (most of users)
     "customerseed": "customerseed",
-    "developerbeta": "seed",
+    "developerbeta": "seed",  # Developer Beta, which you can get from betaprofiles.com
 }
 
 MACOS_NAME = {
@@ -52,15 +52,6 @@ class SWSCAN:
         self.max_macos = 16
         super().__init__()
 
-    def apply_metadata(self, metadata: List, product_id: str) -> MacOSProduct:
-        product = MacOSProduct(product_id)
-        product.title = metadata[0]
-        product.version = metadata[1]
-        product.buildid = metadata[2]
-        product.upload_date = metadata[3]
-
-        return product
-
     def build_url(self, catalog_id: str) -> str:
         catalog = catalog_id.lower()
         url = "/index-"
@@ -87,7 +78,7 @@ class SWSCAN:
 
     async def fetch_catalog(self, catalog_id="publicrelease"):
         raw_catalog = await self.HTTP.swscan(
-            self.build_url(catalog_id), headers=OSINSTALL
+            self.build_url(catalog_id), headers=OSINSTALL, return_type="text"
         )
         catalog_data = bytes(raw_catalog, "utf-8")
         self.root = plistlib.loads(catalog_data)
@@ -101,17 +92,28 @@ class SWSCAN:
 
         for p in self.root.get("Products", {}):
             if not fetch_recovery:
+
                 val = (
                     self.root.get("Products", {})
                     .get(p, {})
                     .get("ExtendedMetaInfo", {})
                     .get("InstallAssistantPackageIdentifiers", {})
                 )
+
                 if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
                     "SharedSupport", ""
                 ).startswith("com.apple.pkg.InstallAssistant"):
                     metadata = await self.get_metadata(p)
-                    macos_dict.append(self.apply_metadata(metadata, p))
+
+                    macos_dict.append(
+                        MacOSProduct(
+                            product_id=p,
+                            title=metadata["title"],
+                            version=metadata["version"],
+                            buildid=metadata["buildid"],
+                            postdate=metadata["postdate"],
+                        )
+                    )
             else:
                 if any(
                     x
@@ -123,7 +125,16 @@ class SWSCAN:
                     )
                 ):
                     metadata = await self.get_metadata(p)
-                    macos_dict.append(self.apply_metadata(metadata, p))
+
+                    macos_dict.append(
+                        MacOSProduct(
+                            product_id=p,
+                            title=metadata["title"],
+                            version=metadata["version"],
+                            buildid=metadata["buildid"],
+                            postdate=metadata["postdate"],
+                        )
+                    )
 
         await self.HTTP.session.close()
         return macos_dict
@@ -142,27 +153,37 @@ class SWSCAN:
 
         for p in self.root.get("Products", {}):
             if not fetch_recovery:
+
                 val = (
                     self.root.get("Products", {})
                     .get(p, {})
                     .get("ExtendedMetaInfo", {})
                     .get("InstallAssistantPackageIdentifiers", {})
                 )
+
                 if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
                     "SharedSupport", ""
                 ).startswith("com.apple.pkg.InstallAssistant"):
                     metadata = await self.get_metadata(p)
-                    obj = self.apply_metadata(metadata, p)
+
+                    final_product = MacOSProduct(
+                        product_id=p,
+                        title=metadata["title"],
+                        version=metadata["version"],
+                        buildid=metadata["buildid"],
+                        postdate=metadata["postdate"],
+                    )
+
                     if (
-                        obj.title == title
-                        or obj.buildid == build_id
-                        or obj.version == version
+                        final_product.title == title
+                        or final_product.buildid == build_id
+                        or final_product.version == version
                     ):
-                        obj.packages = [
+                        final_product.packages = [
                             Package(url=package["URL"], filesize=package["Size"])
                             for package in self.root["Products"][p]["Packages"]
                         ]
-                        macos_dict.append(obj)
+                        macos_dict.append(final_product)
             else:
                 if any(
                     x
@@ -174,17 +195,25 @@ class SWSCAN:
                     )
                 ):
                     metadata = await self.get_metadata(p)
-                    obj = self.apply_metadata(metadata, p)
+
+                    final_product = MacOSProduct(
+                        product_id=p,
+                        title=metadata["title"],
+                        version=metadata["version"],
+                        buildid=metadata["buildid"],
+                        postdate=metadata["postdate"],
+                    )
+
                     if (
-                        obj.title == title
-                        or obj.buildid == build_id
-                        or obj.version == version
+                        final_product.title == title
+                        or final_product.buildid == build_id
+                        or final_product.version == version
                     ):
-                        obj.packages = [
+                        final_product.packages = [
                             Package(url=package["URL"], filesize=package["Size"])
                             for package in self.root["Products"][p]["Packages"]
                         ]
-                        macos_dict.append(obj)
+                        macos_dict.append(final_product)
 
         await self.HTTP.session.close()
         return macos_dict
@@ -195,9 +224,11 @@ class SWSCAN:
 
         try:
             resp = await self.HTTP.request(
-                method="GET", url=self.root["Products"][product_id]["ServerMetadataURL"]
+                method="GET",
+                url=self.root["Products"][product_id]["ServerMetadataURL"],
+                return_type="text",
             )
-            resp = await resp.text(encoding="utf-8")
+
             smd = plistlib.loads(bytes(resp, "utf-8"))
             name = smd["localization"]["English"]["title"]
             version = smd["CFBundleShortVersionString"]
@@ -205,8 +236,8 @@ class SWSCAN:
             dist_file = await self.HTTP.request(
                 method="GET",
                 url=self.root["Products"][product_id]["Distributions"]["English"],
+                return_type="text",
             )
-            dist_file = await dist_file.text(encoding="utf-8")
 
             build_search = (
                 "macOSProductBuildVersion"
@@ -225,8 +256,8 @@ class SWSCAN:
             dist_file = await self.HTTP.request(
                 url=self.root["Products"][product_id]["Distributions"]["English"],
                 method="GET",
+                return_type="text",
             )
-            dist_file = await dist_file.text(encoding="utf-8")
 
             build_search = (
                 "macOSProductBuildVersion"
@@ -257,9 +288,11 @@ class SWSCAN:
             with suppress(Exception):
                 name = re.search(r"<title>(.+?)</title>", dist_file).group(1)
 
-        return [
-            name,
-            version,
-            build,
-            self.root.get("Products", {}).get(product_id, {}).get("PostDate", ""),
-        ]
+        return {
+            "title": name,
+            "version": version,
+            "buildid": build,
+            "postdate": self.root.get("Products", {})
+            .get(product_id, {})
+            .get("PostDate", ""),
+        }

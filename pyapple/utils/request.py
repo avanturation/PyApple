@@ -16,6 +16,7 @@ class Base:
         self,
         url: str,
         method: str,
+        return_type: str,
         **kwargs: Any,
     ):
         if not self.session or self.session.closed:
@@ -24,7 +25,7 @@ class Base:
         resp = await self.session.request(method, url, **kwargs)
 
         if resp.status == 200:
-            return resp
+            return await getattr(resp, return_type)()
 
         else:
             raise HTTPException(resp.status, url)
@@ -45,13 +46,11 @@ class Base:
 class AsyncRequest(Base):
     async def ipsw(self, endpoint: str, **kwargs):
         url = IPSW_BASE + endpoint
-        raw = await self.get(url, **kwargs)
-        return await raw.json(encoding="utf-8")
+        return await self.get(url, **kwargs)
 
     async def cydia(self, endpoint: str, **kwargs):
         url = CYDIA_BASE + endpoint
-        raw = await self.get(url, **kwargs)
-        data = await raw.json(encoding="utf-8")
+        data = await self.get(url, **kwargs)
 
         if data["status"] and data["code"] == 200:
             return data
@@ -60,5 +59,4 @@ class AsyncRequest(Base):
 
     async def swscan(self, index: str, headers=None, **kwargs):
         url = SWSCAN_BASE + index
-        raw = await self.get(url, headers=headers, **kwargs)
-        return await raw.text()
+        return await self.get(url, headers=headers, **kwargs)
