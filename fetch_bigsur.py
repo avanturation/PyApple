@@ -1,6 +1,7 @@
-from datetime import date, datetime
-from pyapple import Apple
 import pprint
+from datetime import date, datetime
+
+from pyapple import Apple
 
 
 async def sadf():

@@ -9,7 +9,7 @@ class IPSW:
         self.HTTP = AsyncRequest()
         super().__init__()
 
-    async def device(self, identifier: str) -> iDevice:
+    async def fetch_device(self, identifier: str) -> iDevice:
         data = await self.HTTP.ipsw(
             endpoint=f"/device/{identifier}", return_type="json"
         )
@@ -17,26 +17,26 @@ class IPSW:
 
         return iDevice(**data)
 
-    async def ipsw(self, identifier: str, buildid: str) -> IPSW:
+    async def search_ipsw(self, identifier: str, buildid: str) -> IPSW:
         data = await self.HTTP.ipsw(
             endpoint=f"/ipsw/{identifier}/{buildid}", return_type="json"
         )
 
         return IPSW(**data)
 
-    async def ipsw_version(self, version: str) -> List:
+    async def fetch_ipsw_version(self, version: str) -> List:
         data = await self.HTTP.ipsw(endpoint=f"/ipsw/{version}", return_type="json")
 
         return [IPSW(**firmware) for firmware in data]
 
-    async def keys_device(self, identifier: str) -> List:
+    async def device_keys(self, identifier: str) -> List:
         data = await self.HTTP.ipsw(
             endpoint=f"/keys/device/{identifier}", return_type="json"
         )
 
         return [IPSWKeys(**keys) for keys in data]
 
-    async def keys(self, identifier: str, buildid: str) -> IPSWKeys:
+    async def firmware_keys(self, identifier: str, buildid: str) -> IPSWKeys:
         data = await self.HTTP.ipsw(
             endpoint=f"/keys/ipsw/{identifier}/{buildid}", return_type="json"
         )
@@ -44,21 +44,21 @@ class IPSW:
 
         return IPSWKeys(**data)
 
-    async def ota(self, identifier: str, buildid: str) -> OTAIPSW:
+    async def search_ota(self, identifier: str, buildid: str) -> OTAIPSW:
         data = await self.HTTP.ipsw(
             endpoint=f"/ota/{identifier}/{buildid}", return_type="json"
         )
 
         return OTAIPSW(**data)
 
-    async def ota_version(self, version: str) -> List:
+    async def fetch_ota_version(self, version: str) -> List:
         data = await self.HTTP.ipsw(endpoint=f"/ota/{version}", return_type="json")
 
         return [OTAIPSW(**ota) for ota in data]
 
-    async def ota_docs(self, identifier: str, version: str):
+    async def fetch_ota_docs(self, identifier: str, version: str):
         data = await self.HTTP.ipsw(
             endpoint=f"/ota/documentation/{identifier}/{version}", return_type="text"
         )
 
-        print(data)
+        return data

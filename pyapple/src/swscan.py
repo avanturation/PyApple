@@ -133,19 +133,7 @@ class SWSCAN:
 
         for product_id in vaild_ids:
             metadata = await self.get_metadata(product_id)
-            macos_dict.append(
-                MacOSProduct(
-                    product_id=product_id,
-                    title=metadata["title"],
-                    version=metadata["version"],
-                    buildid=metadata["buildid"],
-                    postdate=metadata["postdate"],
-                    packages=[
-                        Package(url=package["URL"], filesize=package["Size"])
-                        for package in self.root["Products"][product_id]["Packages"]
-                    ],
-                )
-            )
+            macos_dict.append(MacOSProduct(**metadata))
 
         await self.HTTP.session.close()
         return macos_dict
@@ -171,19 +159,7 @@ class SWSCAN:
                 or metadata["buildid"] == buildid
                 or metadata["version"] == version
             ):
-                macos_dict.append(
-                    MacOSProduct(
-                        product_id=product_id,
-                        title=metadata["title"],
-                        version=metadata["version"],
-                        buildid=metadata["buildid"],
-                        postdate=metadata["postdate"],
-                        packages=[
-                            Package(url=package["URL"], filesize=package["Size"])
-                            for package in self.root["Products"][product_id]["Packages"]
-                        ],
-                    )
-                )
+                macos_dict.append(MacOSProduct(**metadata))
 
         await self.HTTP.session.close()
         return macos_dict
@@ -259,10 +235,15 @@ class SWSCAN:
                 name = re.search(r"<title>(.+?)</title>", dist_file).group(1)
 
         return {
+            "product_id": product_id,
             "title": name,
             "version": version,
             "buildid": build,
             "postdate": self.root.get("Products", {})
             .get(product_id, {})
             .get("PostDate", ""),
+            "packages": [
+                Package(url=package["URL"], filesize=package["Size"])
+                for package in self.root["Products"][product_id]["Packages"]
+            ],
         }
