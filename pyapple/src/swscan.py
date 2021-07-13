@@ -1,7 +1,7 @@
 import plistlib
 import re
 from contextlib import suppress
-from typing import Optional, List
+from typing import List, Optional
 
 from ..interface import MacOSProduct, Package
 from ..utils import AsyncRequest
@@ -83,38 +83,34 @@ class SWSCAN:
         catalog_data = bytes(raw_catalog, "utf-8")
         self.root = plistlib.loads(catalog_data)
 
-    async def get_products(
+    async def valid_products(
         self, catalog_id="publicrelease", fetch_recovery: bool = False
     ):
-        macos_dict = []
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
-        for p in self.root.get("Products", {}):
-            if not fetch_recovery:
+        if not fetch_recovery:
+            return [
+                p
+                for p in self.root.get("Products", {})
+                if self.root.get("Products", {})
+                .get(p, {})
+                .get("ExtendedMetaInfo", {})
+                .get("InstallAssistantPackageIdentifiers", {})
+                .get("OSInstall", {})
+                == "com.apple.mpkg.OSInstall"
+                or self.root.get("Products", {})
+                .get(p, {})
+                .get("ExtendedMetaInfo", {})
+                .get("InstallAssistantPackageIdentifiers", {})
+                .get("SharedSupport", "")
+                .startswith("com.apple.pkg.InstallAssistant")
+            ]
 
-                val = (
-                    self.root.get("Products", {})
-                    .get(p, {})
-                    .get("ExtendedMetaInfo", {})
-                    .get("InstallAssistantPackageIdentifiers", {})
-                )
-
-                if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
-                    "SharedSupport", ""
-                ).startswith("com.apple.pkg.InstallAssistant"):
-                    metadata = await self.get_metadata(p)
-
-                    macos_dict.append(
-                        MacOSProduct(
-                            product_id=p,
-                            title=metadata["title"],
-                            version=metadata["version"],
-                            buildid=metadata["buildid"],
-                            postdate=metadata["postdate"],
-                        )
-                    )
-            else:
+        else:
+            return [
+                p
+                for p in self.root.get("Products", {})
                 if any(
                     x
                     for x in self.root.get("Products", {})
@@ -123,26 +119,41 @@ class SWSCAN:
                     if x["URL"].endswith(
                         ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
                     )
-                ):
-                    metadata = await self.get_metadata(p)
+                )
+            ]
 
-                    macos_dict.append(
-                        MacOSProduct(
-                            product_id=p,
-                            title=metadata["title"],
-                            version=metadata["version"],
-                            buildid=metadata["buildid"],
-                            postdate=metadata["postdate"],
-                        )
-                    )
+    async def fetch_macos(
+        self, catalog_id="publicrelease", fetch_recovery: bool = False
+    ):
+        macos_dict = []
+        if not hasattr(self, "root"):
+            await self.fetch_catalog(catalog_id)
+
+        vaild_ids = await self.valid_products(catalog_id, fetch_recovery)
+
+        for product_id in vaild_ids:
+            metadata = await self.get_metadata(product_id)
+            macos_dict.append(
+                MacOSProduct(
+                    product_id=product_id,
+                    title=metadata["title"],
+                    version=metadata["version"],
+                    buildid=metadata["buildid"],
+                    postdate=metadata["postdate"],
+                    packages=[
+                        Package(url=package["URL"], filesize=package["Size"])
+                        for package in self.root["Products"][product_id]["Packages"]
+                    ],
+                )
+            )
 
         await self.HTTP.session.close()
         return macos_dict
 
-    async def get_package(
+    async def search_macos(
         self,
         title: Optional[str],
-        build_id: Optional[str],
+        buildid: Optional[str],
         version: Optional[str],
         catalog_id="publicrelease",
         fetch_recovery: bool = False,
@@ -151,69 +162,28 @@ class SWSCAN:
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
-        for p in self.root.get("Products", {}):
-            if not fetch_recovery:
+        vaild_ids = await self.valid_products(catalog_id, fetch_recovery)
 
-                val = (
-                    self.root.get("Products", {})
-                    .get(p, {})
-                    .get("ExtendedMetaInfo", {})
-                    .get("InstallAssistantPackageIdentifiers", {})
+        for product_id in vaild_ids:
+            metadata = await self.get_metadata(product_id)
+            if (
+                metadata["title"] == title
+                or metadata["buildid"] == buildid
+                or metadata["version"] == version
+            ):
+                macos_dict.append(
+                    MacOSProduct(
+                        product_id=product_id,
+                        title=metadata["title"],
+                        version=metadata["version"],
+                        buildid=metadata["buildid"],
+                        postdate=metadata["postdate"],
+                        packages=[
+                            Package(url=package["URL"], filesize=package["Size"])
+                            for package in self.root["Products"][product_id]["Packages"]
+                        ],
+                    )
                 )
-
-                if val.get("OSInstall", {}) == "com.apple.mpkg.OSInstall" or val.get(
-                    "SharedSupport", ""
-                ).startswith("com.apple.pkg.InstallAssistant"):
-                    metadata = await self.get_metadata(p)
-
-                    final_product = MacOSProduct(
-                        product_id=p,
-                        title=metadata["title"],
-                        version=metadata["version"],
-                        buildid=metadata["buildid"],
-                        postdate=metadata["postdate"],
-                    )
-
-                    if (
-                        final_product.title == title
-                        or final_product.buildid == build_id
-                        or final_product.version == version
-                    ):
-                        final_product.packages = [
-                            Package(url=package["URL"], filesize=package["Size"])
-                            for package in self.root["Products"][p]["Packages"]
-                        ]
-                        macos_dict.append(final_product)
-            else:
-                if any(
-                    x
-                    for x in self.root.get("Products", {})
-                    .get(p, {})
-                    .get("Packages", [])
-                    if x["URL"].endswith(
-                        ("RecoveryHDUpdate.pkg", "RecoveryHDMetaDmg.pkg")
-                    )
-                ):
-                    metadata = await self.get_metadata(p)
-
-                    final_product = MacOSProduct(
-                        product_id=p,
-                        title=metadata["title"],
-                        version=metadata["version"],
-                        buildid=metadata["buildid"],
-                        postdate=metadata["postdate"],
-                    )
-
-                    if (
-                        final_product.title == title
-                        or final_product.buildid == build_id
-                        or final_product.version == version
-                    ):
-                        final_product.packages = [
-                            Package(url=package["URL"], filesize=package["Size"])
-                            for package in self.root["Products"][p]["Packages"]
-                        ]
-                        macos_dict.append(final_product)
 
         await self.HTTP.session.close()
         return macos_dict
