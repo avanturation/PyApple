@@ -56,7 +56,7 @@ class IPSW:
 
         return [OTAIPSW(**ota) for ota in data]
 
-    async def fetch_ota_docs(self, identifier: str, version: str):
+    async def fetch_ota_docs(self, identifier: str, version: str) -> str:
         data = await self.HTTP.ipsw(
             endpoint=f"/ota/documentation/{identifier}/{version}", return_type="text"
         )
