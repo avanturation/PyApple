@@ -45,7 +45,7 @@ class Builds(BaseModel):
         self.status = status
 
 
-class Package(BaseModel):
+class Tweak(BaseModel):
     def __init__(
         self,
         architecture,

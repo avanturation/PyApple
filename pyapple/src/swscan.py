@@ -47,12 +47,12 @@ MACOS_FULLNAME = {
 
 class SWSCAN:
     def __init__(self):
-        self.HTTP = AsyncRequest()
+        self.__HTTP = AsyncRequest()
         self.min_macos = 5
         self.max_macos = 16
         super().__init__()
 
-    def build_url(self, catalog_id: str) -> str:
+    def __build_url(self, catalog_id: str) -> str:
         catalog = catalog_id.lower()
         url = "/index-"
 
@@ -77,13 +77,15 @@ class SWSCAN:
         return url
 
     async def fetch_catalog(self, catalog_id="publicrelease"):
-        raw_catalog = await self.HTTP.swscan(
-            self.build_url(catalog_id), headers=OSINSTALL, return_type="text"
+        raw_catalog = await self.__HTTP.swscan(
+            self.__build_url(catalog_id), headers=OSINSTALL, return_type="text"
         )
         catalog_data = bytes(raw_catalog, "utf-8")
         self.root = plistlib.loads(catalog_data)
 
-    async def valid_products(
+        return self.root
+
+    async def __valid_products(
         self, catalog_id="publicrelease", fetch_recovery: bool = False
     ):
         if not hasattr(self, "root"):
@@ -129,13 +131,13 @@ class SWSCAN:
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
-        vaild_ids = await self.valid_products(catalog_id, fetch_recovery)
+        vaild_ids = await self.__valid_products(catalog_id, fetch_recovery)
 
         for product_id in vaild_ids:
-            metadata = await self.get_metadata(product_id)
+            metadata = await self.__get_metadata(product_id)
             macos_dict.append(MacOSProduct(**metadata))
 
-        await self.HTTP.session.close()
+        await self.__HTTP.session.close()
         return macos_dict
 
     async def search_macos(
@@ -150,10 +152,10 @@ class SWSCAN:
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
-        vaild_ids = await self.valid_products(catalog_id, fetch_recovery)
+        vaild_ids = await self.__valid_products(catalog_id, fetch_recovery)
 
         for product_id in vaild_ids:
-            metadata = await self.get_metadata(product_id)
+            metadata = await self.__get_metadata(product_id)
             if (
                 metadata["title"] == title
                 or metadata["buildid"] == buildid
@@ -161,15 +163,15 @@ class SWSCAN:
             ):
                 macos_dict.append(MacOSProduct(**metadata))
 
-        await self.HTTP.session.close()
+        await self.__HTTP.session.close()
         return macos_dict
 
-    async def get_metadata(self, product_id: str, catalog_id="publicrelease"):
+    async def __get_metadata(self, product_id: str, catalog_id="publicrelease"):
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
 
         try:
-            resp = await self.HTTP.request(
+            resp = await self.__HTTP.request(
                 method="GET",
                 url=self.root["Products"][product_id]["ServerMetadataURL"],
                 return_type="text",
@@ -179,7 +181,7 @@ class SWSCAN:
             name = smd["localization"]["English"]["title"]
             version = smd["CFBundleShortVersionString"]
 
-            dist_file = await self.HTTP.request(
+            dist_file = await self.__HTTP.request(
                 method="GET",
                 url=self.root["Products"][product_id]["Distributions"]["English"],
                 return_type="text",
@@ -199,7 +201,7 @@ class SWSCAN:
                 )
 
         except:
-            dist_file = await self.HTTP.request(
+            dist_file = await self.__HTTP.request(
                 url=self.root["Products"][product_id]["Distributions"]["English"],
                 method="GET",
                 return_type="text",

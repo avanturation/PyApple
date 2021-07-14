@@ -1,11 +1,12 @@
+from typing import Any, Optional
+
 from aiohttp import ClientSession
-from typing import Optional, Any
 
 from ..interface import HTTPException
 
 SWSCAN_BASE = "https://swscan.apple.com/content/catalogs/others"
 IPSW_BASE = "https://api.ipsw.me/v4"
-CYDIA_BASE = " https://api.parcility.co/db"
+CYDIA_BASE = " https://api.parcility.co"
 
 
 class Base:
@@ -46,14 +47,14 @@ class Base:
 class AsyncRequest(Base):
     async def ipsw(self, endpoint: str, **kwargs):
         url = IPSW_BASE + endpoint
-        return await self.get(url, **kwargs)
+        return await self.get(url, return_type="json", **kwargs)
 
     async def cydia(self, endpoint: str, **kwargs):
         url = CYDIA_BASE + endpoint
         data = await self.get(url, **kwargs)
 
         if data["status"] and data["code"] == 200:
-            return data
+            return data["data"]
 
         raise HTTPException(data["code"], url)
 
