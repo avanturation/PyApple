@@ -47,11 +47,11 @@ class Base:
 class AsyncRequest(Base):
     async def ipsw(self, endpoint: str, **kwargs):
         url = IPSW_BASE + endpoint
-        return await self.get(url, return_type="json", **kwargs)
+        return await self.get(url, **kwargs)
 
     async def cydia(self, endpoint: str, **kwargs):
         url = CYDIA_BASE + endpoint
-        data = await self.get(url, **kwargs)
+        data = await self.get(url, return_type="json", **kwargs)
 
         if data["status"] and data["code"] == 200:
             return data["data"]
