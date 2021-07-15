@@ -21,12 +21,14 @@ class Cydia:
         data = await self.__HTTP.cydia(endpoint=f"/?url={url}")
         data = self.__lower_keys(data)
 
+        await self.__HTTP.session.close()
         return Repo(**data)
 
     async def search_repo(self, slug: str) -> Repo:
         data = await self.__HTTP.cydia(endpoint=f"/db/repo/{slug}")
         data = self.__lower_keys(data)
 
+        await self.__HTTP.session.close()
         return Repo(**data)
 
     async def fetch_tweak(self, bundle_id: str, return_depends: bool = False) -> Tweak:
@@ -39,6 +41,7 @@ class Cydia:
         if return_depends:
             pass  # future
 
+        await self.__HTTP.session.close()
         return Tweak(**data)
 
     async def search_tweak(
