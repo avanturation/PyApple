@@ -35,11 +35,13 @@ python3 -m pip install pyapple
 * [Python 3.9.4 64-bit](https://www.python.org/downloads/release/python-394/)
 * [Mac mini (M1, 2020)](https://www.apple.com/mac-mini/) 
 
-## Used technologies
+## Contribute
 
-[Apple](https://apple.com)
-[ipsw.me](https://ipsw.me)
-[Parcility](https://developers.parcility.co/docs#get-dbsearch)
+* Strongly recommend using black and isort.
+* Use pull request.
 
+## License
+
+MIT License
 
 
