@@ -1,6 +1,6 @@
 # PyApple
 
-> iDevice utility library written in Python
+> Apple Device Utility Library written in Python
 
 ## Features
 
@@ -32,17 +32,13 @@ python3 -m pip install pyapple
 ### Build Environment
 
 * [macOS Monterey 12.0 beta 3 (21A5268h)](https://developer.apple.com/documentation/macos-release-notes/macos-12-beta-release-notes)
-
 * [Python 3.9.4 64-bit](https://www.python.org/downloads/release/python-394/)
-
 * [Mac mini (M1, 2020)](https://www.apple.com/mac-mini/) 
 
 ## Used technologies
 
 [Apple](https://apple.com)
-
 [ipsw.me](https://ipsw.me)
-
 [Parcility](https://developers.parcility.co/docs#get-dbsearch)
 
 
