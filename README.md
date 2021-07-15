@@ -5,15 +5,10 @@
 ## Features
 
 * Asynchronous (you can use synchronous method either)
-
 * Fetch IPSW by identifier, buildid and version
-
 * Fetch OTA firmware by identifier, buildid and version
-
 * Fetch available MacOS from Apple server (including betas)
-
 * Get information of cydia tweak and repo
-
 * Extract SHSH2 blobs of iDevices
 
 ## Example
