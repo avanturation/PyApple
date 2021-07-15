@@ -1,10 +1,10 @@
 import asyncio
 import functools
 from typing import Any
-from .src import SWSCAN, IPSW
+from .src import SWSCAN, IPSW, Cydia
 
 
-class RealClient(IPSW, SWSCAN):
+class RealClient(IPSW, SWSCAN, Cydia):
     def __init__(self) -> None:
         super().__init__()
 

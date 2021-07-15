@@ -9,8 +9,13 @@ class Cydia:
         self.__HTTP = AsyncRequest()
         super().__init__()
 
+    def __filter_keys(self, key) -> str:
+        key = key.lower()
+        key = key.replace("-", "_")
+        return key
+
     def __lower_keys(self, data) -> Dict:
-        return {key.lower(): value for key, value in data}
+        return {self.__filter_keys(key): value for key, value in data.items()}
 
     async def fetch_repo(self, url: str) -> Repo:
         data = await self.__HTTP.cydia(endpoint=f"/?url={url}")
@@ -58,4 +63,5 @@ class Cydia:
             if return_depends:
                 pass  # future
 
+        await self.__HTTP.session.close()
         return data

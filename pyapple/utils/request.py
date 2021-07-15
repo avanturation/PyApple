@@ -6,7 +6,7 @@ from ..interface import HTTPException
 
 SWSCAN_BASE = "https://swscan.apple.com/content/catalogs/others"
 IPSW_BASE = "https://api.ipsw.me/v4"
-CYDIA_BASE = " https://api.parcility.co"
+CYDIA_BASE = "https://api.parcility.co"
 
 
 class Base:

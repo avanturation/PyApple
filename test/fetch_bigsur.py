@@ -6,7 +6,7 @@ from pyapple import Apple
 
 async def sadf():
     apple = Apple()
-    await apple.ota_docs("iPhone", "14.6")
+    print(await apple.search_tweak(query="violet"))
 
 
 import asyncio
