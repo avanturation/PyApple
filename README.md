@@ -1,37 +1,31 @@
 # PyApple
 
-> A Python wrapper for Apple firmwares (api.ipsw.me, swscan.apple.com)
+> iDevice utility library written in Python
 
 ## Features
 
-* Get IPSW firmware for an iDevice
+* Asynchronous (you can use synchronous method either)
 
-* Get information of OTA Packages and OTA docs
+* Fetch IPSW by identifier, buildid and version
 
-* Get packages and metadata of available MacOS (includes Developer Beta and Public Beta)
+* Fetch OTA firmware by identifier, buildid and version
 
-* Download IPSW, MacOS, OTA Firmware
+* Fetch available MacOS from Apple server (including betas)
 
-* Get information of cydia tweak and repo.
+* Get information of cydia tweak and repo
 
-* Extract SHSH2 blobs of an iDevice
-
-* Decode Img4 and Img3 binaries
-
-these features will be introduced in PyApple v2
+* Extract SHSH2 blobs of iDevices
 
 ## Example
 
 ```py
-import pyapple
+from pyapple import Apple
 
-client = pyapple.Client()
+client = Apple()
 
-ipsw = client.ipsw("iPhone12,1", "18B92")
+device = client.search_device("iPad13,4")
 
-print(ipsw.version) # Prints 14.2
-
-print(ipsw.url) # Prints IPSW url (http://updates-http.cdn-apple.com/....)
+print(device.name) # Prints "iPad Pro (11-inch) (3rd generation)"
 ```
 
 ## Install
@@ -42,17 +36,19 @@ python3 -m pip install pyapple
 
 ### Build Environment
 
-* [macOS Big Sur 11.1](https://www.apple.com/macos/big-sur/)
+* [macOS Monterey 12.0 beta 3 (21A5268h)](https://developer.apple.com/documentation/macos-release-notes/macos-12-beta-release-notes)
 
-* [Python 3.8.6 for Darwin](https://www.python.org/downloads/release/python-386/)
+* [Python 3.9.4 64-bit](https://www.python.org/downloads/release/python-394/)
 
-* [MacBookPro15,1](https://support.apple.com/kb/SP776) and [Macmini9,1](https://www.apple.com/mac-mini/) (Tested on M1)
+* [Mac mini (M1, 2020)](https://www.apple.com/mac-mini/) 
 
-## Credits
+## Used technologies
 
 [Apple](https://apple.com)
 
 [ipsw.me](https://ipsw.me)
+
+[Parcility](https://developers.parcility.co/docs#get-dbsearch)
 
 
 
