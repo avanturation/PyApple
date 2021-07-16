@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from .base import BaseModel, to_dt
 
@@ -6,23 +6,26 @@ from .base import BaseModel, to_dt
 class Repo(BaseModel):
     def __init__(
         self,
-        label,
-        suite,
-        version,
-        codename,
-        architectures,
-        description,
-        icon,
-        repo,
-        package_count,
-        section_count,
-        sections,
+        label: Optional[str],
+        suite: Optional[str],
+        version: Optional[str],
+        codename: Optional[str],
+        architectures: Optional[str],
+        components: Optional[str],
+        description: Optional[str],
+        icon: Optional[str],
+        repo: Optional[str],
+        package_count: Optional[int],
+        section_count: Optional[int],
+        sections: Optional[List],
+        **kwargs
     ) -> None:
         self.label = label
         self.suite = suite
         self.version = version
         self.codename = codename
         self.architectures = architectures
+        self.components = components
         self.description = description
         self.icon = icon
         self.repo = repo
@@ -33,7 +36,16 @@ class Repo(BaseModel):
 
 class Builds(BaseModel):
     def __init__(
-        self, filename, size, md5sum, sha1, sha256, installed_size, version, status
+        self,
+        filename,
+        size,
+        md5sum,
+        sha1,
+        sha256,
+        installed_size,
+        version,
+        status,
+        **kwargs
     ) -> None:
         self.filename = filename
         self.size = size
@@ -60,6 +72,7 @@ class Tweak(BaseModel):
         section,
         version,
         builds,
+        **kwargs
     ) -> None:
         self.architecture = architecture
         self.author = author

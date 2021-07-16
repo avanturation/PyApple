@@ -6,7 +6,7 @@ from pyapple import Apple
 
 async def sadf():
     apple = Apple()
-    print(await apple.search_tweak(query="violet"))
+    print(await apple.search_repo(slug="packix"))
 
 
 import asyncio

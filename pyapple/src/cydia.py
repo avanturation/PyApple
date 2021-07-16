@@ -31,15 +31,13 @@ class Cydia:
         await self.__HTTP.session.close()
         return Repo(**data)
 
-    async def fetch_tweak(self, bundle_id: str, return_depends: bool = False) -> Tweak:
+    async def fetch_tweak(self, bundle_id: str) -> Tweak:
         data = await self.__HTTP.cydia(endpoint=f"/db/package/{bundle_id}")
         data = self.__lower_keys(data)
 
         data["builds"] = [self.__lower_keys(build) for build in data["builds"]]
         data["builds"] = [Builds(**build) for build in data["builds"]]
-
-        if return_depends:
-            pass  # future
+        data["depends"] = data["depends"].split(", ")
 
         await self.__HTTP.session.close()
         return Tweak(**data)
@@ -50,7 +48,6 @@ class Cydia:
         repo: str = "all",
         section: str = "Tweaks",
         field: str = "Name",
-        return_depends: bool = False,
     ) -> List[Tweak]:
         data = await self.__HTTP.cydia(
             endpoint=f"/db/search?q={query}&repo={repo}&section={section}&field={field}"
@@ -62,9 +59,7 @@ class Cydia:
                 self.__lower_keys(build) for build in data[index]["builds"]
             ]
             data[index]["builds"] = [Builds(**build) for build in data[index]["builds"]]
-
-            if return_depends:
-                pass  # future
+            data["depends"] = data["depends"].split(", ")
 
         await self.__HTTP.session.close()
         return data

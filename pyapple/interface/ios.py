@@ -20,6 +20,7 @@ class IPSW(BaseModel):
             str, None
         ],  # sometimes Apple gives firmware release date as null, fuck
         signed: bool,
+        **kwargs
     ) -> None:
         self.identifier = identifier
         self.buildid = buildid
@@ -42,6 +43,7 @@ class Keys(BaseModel):
         key: str,
         iv: str,
         date: Optional[str],
+        **kwargs
     ) -> None:
         self.image = image
         self.filename = filename
@@ -61,6 +63,7 @@ class IPSWKeys(BaseModel):
         updateramdiskexists: bool,
         restoreramdiskexists: bool,
         keys: Optional[list],
+        **kwargs
     ) -> None:
         self.identifier = identifier
         self.buildid = buildid
@@ -89,6 +92,7 @@ class OTAIPSW(BaseModel):
             str, None
         ],  # sometimes Apple gives firmware release date as null, fuck
         signed: bool,
+        **kwargs
     ) -> None:
         self.identifier = identifier
         self.buildid = buildid
