@@ -1,129 +1,139 @@
-from typing import Optional, Union
+from typing import Optional, List
+from datetime import datetime
+from typing import Optional
+from dateutil import tz
 
-from .base import BaseModel, to_dt
-
-
-class IPSW(BaseModel):
-    def __init__(
-        self,
-        identifier: str,
-        buildid: str,
-        version: str,
-        url: str,
-        filesize: int,
-        sha1sum: str,
-        md5sum: str,
-        releasedate: Union[
-            str, None
-        ],  # sometimes Apple gives firmware release date as null, fuck
-        uploaddate: Union[
-            str, None
-        ],  # sometimes Apple gives firmware release date as null, fuck
-        signed: bool,
-        **kwargs
-    ) -> None:
-        self.identifier = identifier
-        self.buildid = buildid
-        self.version = version
-        self.uri = url
-        self.filesize = filesize
-        self.sha1sum = sha1sum
-        self.md5sum = md5sum
-        self.signed = signed
-        self.releasedate = to_dt(releasedate)
-        self.uploaddate = to_dt(uploaddate)
+import dataclasses
 
 
-class Keys(BaseModel):
-    def __init__(
-        self,
-        image: str,
-        filename: str,
-        kbag: str,
-        key: str,
-        iv: str,
-        date: Optional[str],
-        **kwargs
-    ) -> None:
-        self.image = image
-        self.filename = filename
-        self.kbag = kbag
-        self.key = key
-        self.iv = iv
-        self.date = to_dt(date)
+def to_dt(time: Optional[str]):
+    if time is None:
+        return time  # early return
+
+    dest = tz.tzutc()
+    obj = datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ")
+    obj = obj.replace(tzinfo=dest)
+    return obj
 
 
-class IPSWKeys(BaseModel):
-    def __init__(
-        self,
-        identifier: str,
-        buildid: str,
-        codename: str,
-        baseband: Optional[str],
-        updateramdiskexists: bool,
-        restoreramdiskexists: bool,
-        keys: Optional[list],
-        **kwargs
-    ) -> None:
-        self.identifier = identifier
-        self.buildid = buildid
-        self.codename = codename
-        self.baseband = baseband
-        self.updateramdiskexists = updateramdiskexists
-        self.restoreramdiskexists = restoreramdiskexists
-        self.keys = keys
+@dataclasses.dataclass(init=True, repr=True)
+class IPSW:
+    __slots__ = (
+        "identifier",
+        "buildid",
+        "version",
+        "url",
+        "filesize",
+        "sha1sum",
+        "md5sum",
+        "releasedata",
+        "uploaddate",
+        "signed",
+    )
+
+    identifier: str
+    buildid: str
+    version: str
+    url: str
+    filesize: int
+    sha1sum: str
+    md5sum: str
+    releasedate: Optional[str]
+    uploaddate: Optional[str]
+    signed: bool
+
+    def __post_init__(self) -> None:
+        self.releasedate = to_dt(self.releasedate)
+        self.uploaddate = to_dt(self.uploaddate)
 
 
-class OTAIPSW(BaseModel):
-    def __init__(
-        self,
-        identifier: str,
-        buildid: str,
-        version: str,
-        url: str,
-        filesize: int,
-        prerequisitebuildid: str,
-        prerequisiteversion: str,
-        release_type: str,
-        uploaddate: Union[
-            str, None
-        ],  # sometimes Apple gives firmware release date as null, fuck
-        releasedate: Union[
-            str, None
-        ],  # sometimes Apple gives firmware release date as null, fuck
-        signed: bool,
-        **kwargs
-    ) -> None:
-        self.identifier = identifier
-        self.buildid = buildid
-        self.version = version
-        self.uri = url
-        self.filesize = filesize
-        self.prerequisitebuildid = prerequisitebuildid
-        self.prerequisiteversion = prerequisiteversion
-        self.release_type = release_type
-        self.upload_date = to_dt(uploaddate)
-        self.release_date = to_dt(releasedate)
-        self.signed = signed
+@dataclasses.dataclass(init=True, repr=True)
+class FirmwareKeys:
+    __slots__ = ("image", "filename", "kbag", "key", "iv", "date")
+
+    image: str
+    filename: str
+    kbag: str
+    key: str
+    iv: str
+    date: Optional[str]
+
+    def __post_init__(self) -> None:
+        self.date = to_dt(self.date)
 
 
-class iDevice(BaseModel):
-    def __init__(
-        self,
-        name: str,
-        identifier: str,
-        boardconfig: str,
-        platform: str,
-        cpid: str,
-        bdid: str,
-        firmwares: Optional[list],
-        boards: Optional[list],
-    ) -> None:
-        self.name = name
-        self.identifier = identifier
-        self.boardconfig = boardconfig
-        self.platform = platform
-        self.cpid = cpid
-        self.bdid = bdid
-        self.firmwares = firmwares
-        self.boards = boards
+@dataclasses.dataclass(init=True, repr=True)
+class DeviceKeys:
+    __slots__ = (
+        "identifier",
+        "buildid",
+        "codename",
+        "baseband",
+        "updateramdiskexists",
+        "restoreramdiskexists",
+        "keys",
+    )
+
+    identifier: str
+    buildid: str
+    codename: str
+    baseband: Optional[str]
+    updateramdiskexists: bool
+    restoreramdiskexists: bool
+    keys: Optional[List]
+
+
+@dataclasses.dataclass(init=True, repr=True)
+class OTA:
+    __slots__ = (
+        "identifier",
+        "buildid",
+        "version",
+        "url",
+        "filesize",
+        "prerequisitebuildid",
+        "prerequisiteversion",
+        "release_type",
+        "uploaddate",
+        "releasedate",
+        "signed",
+    )
+
+    identifier: str
+    buildid: str
+    version: str
+    url: str
+    filesize: int
+    prerequisitebuildid: str
+    prerequisiteversion: str
+    release_type: str
+    uploaddate: Optional[str]
+    releasedate: Optional[str]
+    signed: bool
+
+    def __post_init__(self) -> None:
+        self.releasedate = to_dt(self.releasedate)
+        self.uploaddate = to_dt(self.uploaddate)
+
+
+@dataclasses.dataclass(init=True, repr=True)
+class iDevice:
+    __slots__ = (
+        "name",
+        "identifier",
+        "boardconfig",
+        "platform",
+        "cpid",
+        "bdid",
+        "firmwares",
+        "board",
+    )
+
+    name: str
+    identifier: str
+    boardconfig: str
+    platform: str
+    cpid: str
+    bdid: str
+    firmwares: Optional[List]
+    boards: Optional[List]

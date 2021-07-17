@@ -1,29 +1,27 @@
 from typing import List, Optional
 
-from .base import BaseModel
+import dataclasses
 
 
-class MacOSProduct(BaseModel):
-    def __init__(
-        self,
-        product_id: str,
-        title: str,
-        version: str,
-        buildid: str,
-        postdate,
-        packages: Optional[List],
-        **kwargs
-    ) -> None:
-        self.product_id = product_id
-        self.title = title
-        self.version = version
-        self.buildid = buildid
-        self.postdate = postdate
-        self.packages = packages
+@dataclasses.dataclass(repr=True)
+class Package:
+    __slots__ = ("url", "filesize", "filename")
+
+    url: str
+    filesize: int
+    filename: str = dataclasses.field(init=False)
+
+    def __post_init__(self):
+        self.filename = self.url.split("/")[-1]
 
 
-class Package(BaseModel):
-    def __init__(self, url: str, filesize: int, **kwargs) -> None:
-        self.filename = url.split("/")[-1]
-        self.url = url
-        self.filesize = filesize
+@dataclasses.dataclass(repr=True)
+class MacOSProduct:
+    __slots__ = ("product_id", "title", "version", "buildid", "postdate", "packages")
+
+    product_id: str
+    title: str
+    version: str
+    buildid: str
+    postdate: any
+    packages: Optional[List[Package]]

@@ -52,6 +52,7 @@ class Cydia:
         data = await self.__HTTP.cydia(
             endpoint=f"/db/search?q={query}&repo={repo}&section={section}&field={field}"
         )
+        
         for index in range(len(data)):
             data[index] = self.__lower_keys(data[index])
 
@@ -59,7 +60,7 @@ class Cydia:
                 self.__lower_keys(build) for build in data[index]["builds"]
             ]
             data[index]["builds"] = [Builds(**build) for build in data[index]["builds"]]
-            data["depends"] = data["depends"].split(", ")
+            data[index]["depends"] = data[index]["depends"].split(", ")
 
         await self.__HTTP.session.close()
-        return data
+        return [Tweak(**tweaks) for tweaks in data]

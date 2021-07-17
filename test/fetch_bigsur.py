@@ -5,8 +5,11 @@ from pyapple import Apple
 
 
 async def sadf():
+    d = datetime.now()
     apple = Apple()
-    print(await apple.search_repo(slug="packix"))
+    print(await apple.search_tweak(query="velvet"))
+    t = datetime.now()
+    print(t - d)
 
 
 import asyncio

@@ -6,7 +6,7 @@ class HTTPException(Exception):
         return self.error
 
 
-class OSException(Exception):
+class UsingWindows(Exception):
     def __init__(self) -> None:
         self.error = "Your operating system does not support this function. Only Linux and macOS supports."
 

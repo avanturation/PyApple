@@ -1,6 +1,6 @@
 from typing import List
 
-from ..interface import IPSW, OTAIPSW, IPSWKeys, Keys, iDevice
+from ..interface import IPSW, OTA, DeviceKeys, FirmwareKeys, iDevice
 from ..utils import AsyncRequest
 
 
@@ -26,41 +26,41 @@ class IPSW:
         await self.__HTTP.session.close()
         return IPSW(**data)
 
-    async def fetch_ipsw_version(self, version: str) -> List:
+    async def fetch_ipsw_version(self, version: str) -> List[IPSW]:
         data = await self.__HTTP.ipsw(endpoint=f"/ipsw/{version}", return_type="json")
 
         return [IPSW(**firmware) for firmware in data]
 
-    async def device_keys(self, identifier: str) -> List:
+    async def device_keys(self, identifier: str) -> List[DeviceKeys]:
         data = await self.__HTTP.ipsw(
             endpoint=f"/keys/device/{identifier}", return_type="json"
         )
 
         await self.__HTTP.session.close()
-        return [IPSWKeys(**keys) for keys in data]
+        return [DeviceKeys(**keys) for keys in data]
 
-    async def firmware_keys(self, identifier: str, buildid: str) -> IPSWKeys:
+    async def firmware_keys(self, identifier: str, buildid: str) -> DeviceKeys:
         data = await self.__HTTP.ipsw(
             endpoint=f"/keys/ipsw/{identifier}/{buildid}", return_type="json"
         )
-        data["keys"] = [Keys(**keys) for keys in data["keys"]]
+        data["keys"] = [FirmwareKeys(**keys) for keys in data["keys"]]
 
         await self.__HTTP.session.close()
-        return IPSWKeys(**data)
+        return DeviceKeys(**data)
 
-    async def search_ota(self, identifier: str, buildid: str) -> OTAIPSW:
+    async def search_ota(self, identifier: str, buildid: str) -> OTA:
         data = await self.__HTTP.ipsw(
             endpoint=f"/ota/{identifier}/{buildid}", return_type="json"
         )
 
         await self.__HTTP.session.close()
-        return OTAIPSW(**data)
+        return OTA(**data)
 
-    async def fetch_ota_version(self, version: str) -> List:
+    async def fetch_ota_version(self, version: str) -> List[OTA]:
         data = await self.__HTTP.ipsw(endpoint=f"/ota/{version}", return_type="json")
 
         await self.__HTTP.session.close()
-        return [OTAIPSW(**ota) for ota in data]
+        return [OTA(**ota) for ota in data]
 
     async def fetch_ota_docs(self, identifier: str, version: str) -> str:
         data = await self.__HTTP.ipsw(
