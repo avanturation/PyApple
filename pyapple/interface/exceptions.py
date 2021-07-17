@@ -4,11 +4,3 @@ class HTTPException(Exception):
 
     def __str__(self) -> str:
         return self.error
-
-
-class UsingWindows(Exception):
-    def __init__(self) -> None:
-        self.error = "Your operating system does not support this function. Only Linux and macOS supports."
-
-    def __str__(self) -> str:
-        return self.error

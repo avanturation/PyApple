@@ -1,11 +1,10 @@
 from .cydia import Builds, Repo, Tweak
-from .exceptions import HTTPException, UsingWindows
+from .exceptions import HTTPException
 from .ios import IPSW, OTA, FirmwareKeys, DeviceKeys, iDevice
 from .macos import MacOSProduct, Package
 
 __all__ = [
     "HTTPException",
-    "UsingWindows",
     "IPSW",
     "OTA",
     "DeviceKeys",
