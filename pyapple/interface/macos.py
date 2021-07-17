@@ -9,7 +9,6 @@ class Package:
 
     url: str
     filesize: int
-    filename: str = dataclasses.field(init=False)
 
     def __post_init__(self):
         self.filename = self.url.split("/")[-1]

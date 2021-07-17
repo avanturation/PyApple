@@ -1,9 +1,9 @@
 class SHSH2:
     def __init__(self) -> None:
-        pass
+        super().__init__()
 
     async def run_tsschecker(self, **kwargs):
-        pass
+        args = [""]
 
-    async def save_blobs(self, identifier, version):
+    async def save_blobs(self, **kwargs):
         pass

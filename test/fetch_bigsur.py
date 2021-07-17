@@ -7,7 +7,7 @@ from pyapple import Apple
 async def sadf():
     d = datetime.now()
     apple = Apple()
-    print(await apple.search_tweak(query="velvet"))
+    print(apple.os_curdir())
     t = datetime.now()
     print(t - d)
 
