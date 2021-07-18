@@ -1,8 +1,11 @@
 from asyncio import create_subprocess_shell, subprocess
+from typing import Optional
+from ..utils import AsyncRequest
 
 
 class SHSH2:
     def __init__(self) -> None:
+        self.__HTTP = AsyncRequest()
         super().__init__()
 
     async def run_tsschecker(self, **kwargs):
@@ -90,5 +93,91 @@ class SHSH2:
         ecid: str,
         identifier: str,
         buildid: str,
+        boardconfig: Optional[str] = None,
+        apnonce: Optional[str] = None,
+        generator: Optional[str] = None,
+        ota: Optional[bool] = False,
+        beta: Optional[bool] = False,
     ):
         args = ["tsschecker", "-d", identifier, "-e", ecid, "--buildid", buildid]
+
+        if apnonce:
+            args.append("--apnonce")
+            args.append(apnonce)
+
+        if generator:
+            args.append("--generator")
+            args.append(generator)
+
+        if ota:
+            args.append("-o")
+
+        if beta:
+            args.append("--beta")
+
+        if boardconfig is None:
+            device_info = await self.__HTTP.ipsw(
+                endpoint=f"/device/{identifier}", return_type="json"
+            )
+
+            boardconfig = device_info["boardconfig"]
+
+        args.append("-B")
+        args.append(boardconfig)
+
+        proc = await create_subprocess_shell(
+            " ".join(args),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        await self.__HTTP.session.close()
+        return proc
+
+    async def latest_blobs(
+        self,
+        identifier: str,
+        ecid: str,
+        apnonce: Optional[str] = None,
+        generator: Optional[str] = None,
+        boardconfig: Optional[str] = None,
+    ):
+        args = ["tsschecker", "-d", identifier, "-e", ecid]
+
+        device_info = await self.__HTTP.ipsw(
+            endpoint=f"/device/{identifier}", return_type="json"
+        )
+
+        latest_firmware = device_info["firmwares"][0]
+
+        buildid = latest_firmware["buildid"]
+        version = latest_firmware["version"]
+
+        args.append("--buildid")
+        args.append(buildid)
+
+        args.append("-i")
+        args.append(version)
+
+        if apnonce:
+            args.append("--apnonce")
+            args.append(apnonce)
+
+        if generator:
+            args.append("--generator")
+            args.append(generator)
+
+        if boardconfig is None:
+            boardconfig = device_info["boardconfig"]
+
+        args.append("-B")
+        args.append(boardconfig)
+
+        proc = await create_subprocess_shell(
+            " ".join(args),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        await self.__HTTP.session.close()
+        return proc

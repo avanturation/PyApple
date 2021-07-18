@@ -10,7 +10,7 @@ class IPSW:
         super().__init__()
 
     async def fetch_device(self, identifier: str) -> iDevice:
-        data = await self.HTTP.ipsw(
+        data = await self.__HTTP.ipsw(
             endpoint=f"/device/{identifier}", return_type="json"
         )
         data["firmwares"] = [IPSW(**firmware) for firmware in data["firmwares"]]
