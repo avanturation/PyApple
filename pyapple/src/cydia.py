@@ -52,7 +52,7 @@ class Cydia:
         data = await self.__HTTP.cydia(
             endpoint=f"/db/search?q={query}&repo={repo}&section={section}&field={field}"
         )
-        
+
         for index in range(len(data)):
             data[index] = self.__lower_keys(data[index])
 

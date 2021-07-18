@@ -1,6 +1,5 @@
-from typing import List, Optional
-
 import dataclasses
+from typing import List, Optional
 
 
 @dataclasses.dataclass(repr=True)

@@ -1,9 +1,8 @@
-from typing import Optional, List
-from datetime import datetime
-from typing import Optional
-from dateutil import tz
-
 import dataclasses
+from datetime import datetime
+from typing import List, Optional
+
+from dateutil import tz
 
 
 def to_dt(time: Optional[str]):

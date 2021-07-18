@@ -1,9 +1,8 @@
 import dataclasses
 from typing import List, Optional
-from dataclasses import dataclass
 
 
-@dataclass(init=True, repr=True)
+@dataclasses.dataclass(init=True, repr=True)
 class Repo:
     __slots__ = (
         "label",
@@ -41,7 +40,7 @@ class Repo:
                 setattr(self, key, value)
 
 
-@dataclass(init=True, repr=True)
+@dataclasses.dataclass(init=True, repr=True)
 class Builds:
     __slots__ = (
         "filename",
@@ -71,7 +70,7 @@ class Builds:
                 setattr(self, key, value)
 
 
-@dataclass(init=True, repr=True)
+@dataclasses.dataclass(init=True, repr=True)
 class Tweak:
     __slots__ = (
         "architecture",

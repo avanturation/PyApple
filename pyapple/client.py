@@ -1,7 +1,8 @@
 import asyncio
 import functools
 from typing import Any
-from .src import SWSCAN, IPSW, Cydia, SHSH2
+
+from .src import IPSW, SHSH2, SWSCAN, Cydia
 
 
 class RealClient(IPSW, SWSCAN, Cydia, SHSH2):
