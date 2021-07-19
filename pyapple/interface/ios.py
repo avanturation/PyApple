@@ -15,7 +15,7 @@ def to_dt(time: Optional[str]):
     return obj
 
 
-@dataclasses.dataclass(init=True, repr=True)
+@dataclasses.dataclass(repr=True)
 class IPSW:
     __slots__ = (
         "identifier",
@@ -25,7 +25,7 @@ class IPSW:
         "filesize",
         "sha1sum",
         "md5sum",
-        "releasedata",
+        "releasedate",
         "uploaddate",
         "signed",
     )
@@ -125,7 +125,7 @@ class iDevice:
         "cpid",
         "bdid",
         "firmwares",
-        "board",
+        "boards",
     )
 
     name: str

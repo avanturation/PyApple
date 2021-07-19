@@ -4,7 +4,7 @@ from ..interface import IPSW, OTA, DeviceKeys, FirmwareKeys, iDevice
 from ..utils import AsyncRequest
 
 
-class IPSW:
+class IPSWME:
     def __init__(self) -> None:
         self.__HTTP = AsyncRequest()
         super().__init__()
