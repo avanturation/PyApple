@@ -10,6 +10,12 @@ class SHSH2:
         super().__init__()
 
     async def run_tsschecker(self, **kwargs):
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
+
         args = ["tsschecker"]
 
         if kwargs.get("device"):
@@ -100,6 +106,22 @@ class SHSH2:
         ota: Optional[bool] = False,
         beta: Optional[bool] = False,
     ):
+        """[summary]
+
+        Args:
+            ecid (str): [description]
+            identifier (str): [description]
+            buildid (str): [description]
+            boardconfig (Optional[str], optional): [description]. Defaults to None.
+            apnonce (Optional[str], optional): [description]. Defaults to None.
+            generator (Optional[str], optional): [description]. Defaults to None.
+            ota (Optional[bool], optional): [description]. Defaults to False.
+            beta (Optional[bool], optional): [description]. Defaults to False.
+
+        Returns:
+            [type]: [description]
+        """
+
         args = ["tsschecker", "-d", identifier, "-e", ecid, "--buildid", buildid]
 
         if apnonce:
@@ -143,6 +165,19 @@ class SHSH2:
         generator: Optional[str] = None,
         boardconfig: Optional[str] = None,
     ):
+        """[summary]
+
+        Args:
+            identifier (str): [description]
+            ecid (str): [description]
+            apnonce (Optional[str], optional): [description]. Defaults to None.
+            generator (Optional[str], optional): [description]. Defaults to None.
+            boardconfig (Optional[str], optional): [description]. Defaults to None.
+
+        Returns:
+            [type]: [description]
+        """
+
         args = ["tsschecker", "-d", identifier, "-e", ecid]
 
         device_info = await self.__HTTP.ipsw(

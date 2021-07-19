@@ -17,6 +17,22 @@ def to_dt(time: Optional[str]):
 
 @dataclasses.dataclass(repr=True)
 class IPSW:
+    """
+    Dataclass of IPSW firmware.
+
+    Arguments:
+        `identifier` (str) - Identifier of target iDevice (e.g. iPhone12,1)
+        `buildid` (str) - Build string of IPSW firmware (e.g. 19A5297e)
+        `version` (str) - Version of IPSW firmware (e.g. 15.0)
+        `url` (str) - Download link of IPSW firmware
+        `filesize` (int) - Size of the IPSW firmware file
+        `sha1sum` (str) - SHA1 hash value of IPSW firmware file
+        `md5sum` (str) - MD5 value of IPSW firmware file
+        `releasedate` (datetime.datetime) - Released date of IPSW firmware
+        `uploaddate` (datetime.datetime) - Uploaded date of IPSW firmware
+        `signed` (bool) - Signing status of IPSW firmware. (*critical when downgrading or saving blobs)
+    """
+
     __slots__ = (
         "identifier",
         "buildid",
@@ -48,6 +64,18 @@ class IPSW:
 
 @dataclasses.dataclass(init=True, repr=True)
 class FirmwareKeys:
+    """
+    Dataclass of firmware decryption keys.
+
+    Arguments:
+        `image` (str) - Name of target image (e.g. GlyphCharging)
+        `filename` (str) - Full path of target image (e.g. Firmware/all_flash/all_fl ...)
+        `kbag` (str) - KBAG value of target image
+        `key` (str) - Key value of target image
+        `iv` (str) - IV value of target image
+        `date` (datetime.datetime) - Created date of target image
+    """
+
     __slots__ = ("image", "filename", "kbag", "key", "iv", "date")
 
     image: str

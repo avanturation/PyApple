@@ -46,6 +46,8 @@ MACOS_FULLNAME = {
 
 
 class SWSCAN:
+    """[summary]"""
+
     def __init__(self):
         self.__HTTP = AsyncRequest()
         self.min_macos = 5
@@ -77,6 +79,15 @@ class SWSCAN:
         return url
 
     async def fetch_catalog(self, catalog_id="publicrelease"):
+        """[summary]
+
+        Args:
+            catalog_id (str, optional): [description]. Defaults to "publicrelease".
+
+        Returns:
+            [type]: [description]
+        """
+
         raw_catalog = await self.__HTTP.swscan(
             self.__build_url(catalog_id), headers=OSINSTALL, return_type="text"
         )
@@ -126,7 +137,17 @@ class SWSCAN:
 
     async def fetch_macos(
         self, catalog_id="publicrelease", fetch_recovery: bool = False
-    ):
+    ) -> List[MacOSProduct]:
+        """[summary]
+
+        Args:
+            catalog_id (str, optional): [description]. Defaults to "publicrelease".
+            fetch_recovery (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            List[MacOSProduct]: [description]
+        """
+
         macos_dict = []
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)
@@ -147,7 +168,20 @@ class SWSCAN:
         version: Optional[str],
         catalog_id="publicrelease",
         fetch_recovery: bool = False,
-    ):
+    ) -> List[MacOSProduct]:
+        """[summary]
+
+        Args:
+            title (Optional[str]): [description]
+            buildid (Optional[str]): [description]
+            version (Optional[str]): [description]
+            catalog_id (str, optional): [description]. Defaults to "publicrelease".
+            fetch_recovery (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            List[MacOSProduct]: [description]
+        """
+
         macos_dict = []
         if not hasattr(self, "root"):
             await self.fetch_catalog(catalog_id)

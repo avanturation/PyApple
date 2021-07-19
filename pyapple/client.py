@@ -6,6 +6,16 @@ from .src import IPSWME, SHSH2, SWSCAN, Cydia
 
 
 class Apple(IPSWME, SWSCAN, Cydia, SHSH2):
+    """
+    Main class of PyApple.
+
+    Inherited classes:
+        `pyapple.src.ipsw.IPSWME` - ipsw.me related class.
+        `pyapple.src.swscan.SWSCAN` - swscan.apple.com related class.
+        `pyapple.src.shsh2.SHSH2` - SHSH2 related class.
+        `pyapple.src.cydia.Cydia` - Jailbreak related class.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

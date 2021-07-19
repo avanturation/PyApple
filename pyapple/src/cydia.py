@@ -18,6 +18,15 @@ class Cydia:
         return {self.__filter_keys(key): value for key, value in data.items()}
 
     async def fetch_repo(self, url: str) -> Repo:
+        """[summary]
+
+        Args:
+            url (str): [description]
+
+        Returns:
+            Repo: [description]
+        """
+
         data = await self.__HTTP.cydia(endpoint=f"/?url={url}")
         data = self.__lower_keys(data)
 
@@ -25,6 +34,15 @@ class Cydia:
         return Repo(**data)
 
     async def search_repo(self, slug: str) -> Repo:
+        """[summary]
+
+        Args:
+            slug (str): [description]
+
+        Returns:
+            Repo: [description]
+        """
+
         data = await self.__HTTP.cydia(endpoint=f"/db/repo/{slug}")
         data = self.__lower_keys(data)
 
@@ -32,6 +50,15 @@ class Cydia:
         return Repo(**data)
 
     async def fetch_tweak(self, bundle_id: str) -> Tweak:
+        """[summary]
+
+        Args:
+            bundle_id (str): [description]
+
+        Returns:
+            Tweak: [description]
+        """
+
         data = await self.__HTTP.cydia(endpoint=f"/db/package/{bundle_id}")
         data = self.__lower_keys(data)
 
@@ -49,6 +76,18 @@ class Cydia:
         section: str = "Tweaks",
         field: str = "Name",
     ) -> List[Tweak]:
+        """[summary]
+
+        Args:
+            query (str): [description]
+            repo (str, optional): [description]. Defaults to "all".
+            section (str, optional): [description]. Defaults to "Tweaks".
+            field (str, optional): [description]. Defaults to "Name".
+
+        Returns:
+            List[Tweak]: [description]
+        """
+
         data = await self.__HTTP.cydia(
             endpoint=f"/db/search?q={query}&repo={repo}&section={section}&field={field}"
         )
