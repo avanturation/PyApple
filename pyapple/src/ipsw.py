@@ -10,13 +10,13 @@ class IPSWME:
         super().__init__()
 
     async def fetch_device(self, identifier: str) -> iDevice:
-        """[summary]
+        """Fetches iDevice from ipsw.me API.
 
         Args:
-            identifier (str): [description]
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
 
         Returns:
-            iDevice: [description]
+            iDevice: Dataclass object of iDevice.
         """
 
         data = await self.__HTTP.ipsw(
@@ -28,14 +28,14 @@ class IPSWME:
         return iDevice(**data)
 
     async def search_ipsw(self, identifier: str, buildid: str) -> IPSW:
-        """[summary]
+        """Searches specfic IPSW firmware from ipsw.me API.
 
         Args:
-            identifier (str): [description]
-            buildid (str): [description]
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
+            buildid (str): Build ID of IPSW firmware. (e.g. 19A5297e)
 
         Returns:
-            IPSW: [description]
+            IPSW: Dataclass object of IPSW firmware.
         """
         data = await self.__HTTP.ipsw(
             endpoint=f"/ipsw/{identifier}/{buildid}", return_type="json"
@@ -45,26 +45,26 @@ class IPSWME:
         return IPSW(**data)
 
     async def fetch_ipsw_version(self, version: str) -> List[IPSW]:
-        """[summary]
+        """Fetches all iOS/iPadOS firmware by version from ipsw.me API.
 
         Args:
-            version (str): [description]
+            version (str): iOS/iPadOS version to search. (e.g. 14.7)
 
         Returns:
-            List[IPSW]: [description]
+            List[IPSW]: List of searched IPSW dataclass objects.
         """
         data = await self.__HTTP.ipsw(endpoint=f"/ipsw/{version}", return_type="json")
 
         return [IPSW(**firmware) for firmware in data]
 
     async def device_keys(self, identifier: str) -> List[DeviceKeys]:
-        """[summary]
+        """Searches key data of iDevice from ipsw.me API.
 
         Args:
-            identifier (str): [description]
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
 
         Returns:
-            List[DeviceKeys]: [description]
+            List[DeviceKeys]: List of device keys dataclass objects.
         """
         data = await self.__HTTP.ipsw(
             endpoint=f"/keys/device/{identifier}", return_type="json"
@@ -74,14 +74,14 @@ class IPSWME:
         return [DeviceKeys(**keys) for keys in data]
 
     async def firmware_keys(self, identifier: str, buildid: str) -> DeviceKeys:
-        """[summary]
+        """Searches key data of IPSW firmware from ipsw.me API.
 
         Args:
-            identifier (str): [description]
-            buildid (str): [description]
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
+            buildid (str): Build ID of IPSW firmware. (e.g. 19A5297e)
 
         Returns:
-            DeviceKeys: [description]
+            DeviceKeys: Dataclass object of device and firmware keys.
         """
         data = await self.__HTTP.ipsw(
             endpoint=f"/keys/ipsw/{identifier}/{buildid}", return_type="json"
@@ -92,14 +92,14 @@ class IPSWME:
         return DeviceKeys(**data)
 
     async def search_ota(self, identifier: str, buildid: str) -> OTA:
-        """[summary]
+        """Searches OTA firmware by identifier and buildid from ipsw.me API.
 
         Args:
-            identifier (str): [description]
-            buildid (str): [description]
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
+            buildid (str): Build ID of IPSW firmware. (e.g. 19A5297e)
 
         Returns:
-            OTA: [description]
+            OTA: Dataclass object of OTA firmware.
         """
         data = await self.__HTTP.ipsw(
             endpoint=f"/ota/{identifier}/{buildid}", return_type="json"
@@ -109,10 +109,10 @@ class IPSWME:
         return OTA(**data)
 
     async def fetch_ota_version(self, version: str) -> List[OTA]:
-        """[summary]
+        """Fetches OTA firmware by iOS/iPadOS version from ipsw.me API.
 
         Args:
-            version (str): [description]
+            version (str): iOS/iPadOS version to search. (e.g. 14.7)
 
         Returns:
             List[OTA]: [description]
@@ -123,14 +123,14 @@ class IPSWME:
         return [OTA(**ota) for ota in data]
 
     async def fetch_ota_docs(self, identifier: str, version: str) -> str:
-        """[summary]
+        """Fetches OTA documentation by identifier and iOS/iPadOS version from ipsw.me API.
 
         Args:
-            identifier (str): [description]
-            version (str): [description]
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
+            version (str): iOS/iPadOS version to search. (e.g. 14.7)
 
         Returns:
-            str: [description]
+            str: String of OTA documentation.
         """
         data = await self.__HTTP.ipsw(
             endpoint=f"/ota/documentation/{identifier}/{version}", return_type="text"

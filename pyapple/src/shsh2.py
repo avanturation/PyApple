@@ -109,10 +109,10 @@ class SHSH2:
         """[summary]
 
         Args:
-            ecid (str): [description]
-            identifier (str): [description]
-            buildid (str): [description]
-            boardconfig (Optional[str], optional): [description]. Defaults to None.
+            ecid (str): ECID of your iDevice.
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
+            buildid (str): Build ID of IPSW firmware. (e.g. 19A5297e)
+            boardconfig (Optional[str], optional): Boardconfig of your iDevice. If boardconfig is None, it automatically searches from ipsw.me.
             apnonce (Optional[str], optional): [description]. Defaults to None.
             generator (Optional[str], optional): [description]. Defaults to None.
             ota (Optional[bool], optional): [description]. Defaults to False.
@@ -168,11 +168,11 @@ class SHSH2:
         """[summary]
 
         Args:
-            identifier (str): [description]
-            ecid (str): [description]
-            apnonce (Optional[str], optional): [description]. Defaults to None.
+            identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
+            ecid (str): ECID of your iDevice.
+            apnonce (Optional[str], optional): Apnonce of youtr iDevice. (A12 above) Defaults to None.
             generator (Optional[str], optional): [description]. Defaults to None.
-            boardconfig (Optional[str], optional): [description]. Defaults to None.
+            boardconfig (Optional[str], optional): Boardconfig of your iDevice. If boardconfig is None, it automatically searches from ipsw.me.
 
         Returns:
             [type]: [description]
