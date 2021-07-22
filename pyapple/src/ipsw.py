@@ -5,6 +5,8 @@ from ..utils import AsyncRequest
 
 
 class IPSWME:
+    """Class for ipsw.me related functions."""
+
     def __init__(self) -> None:
         self.__HTTP = AsyncRequest()
         super().__init__()

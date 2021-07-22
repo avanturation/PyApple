@@ -5,6 +5,8 @@ from ..utils import AsyncRequest
 
 
 class Cydia:
+    """Class for jailbreak related functions."""
+
     def __init__(self) -> None:
         self.__HTTP = AsyncRequest()
         super().__init__()
@@ -18,13 +20,13 @@ class Cydia:
         return {self.__filter_keys(key): value for key, value in data.items()}
 
     async def fetch_repo(self, url: str) -> Repo:
-        """[summary]
+        """Fetches some information about a repo.
 
         Args:
-            url (str): [description]
+            url (str): URL of the repo.
 
         Returns:
-            Repo: [description]
+            Repo: Dataclass object of the repo.
         """
 
         data = await self.__HTTP.cydia(endpoint=f"/?url={url}")
@@ -34,13 +36,13 @@ class Cydia:
         return Repo(**data)
 
     async def search_repo(self, slug: str) -> Repo:
-        """[summary]
+        """Searches repositories from Parcility API.
 
         Args:
-            slug (str): [description]
+            slug (str): repository keyword to search.
 
         Returns:
-            Repo: [description]
+            Repo: Dataclass object of the repo.
         """
 
         data = await self.__HTTP.cydia(endpoint=f"/db/repo/{slug}")
@@ -50,13 +52,13 @@ class Cydia:
         return Repo(**data)
 
     async def fetch_tweak(self, bundle_id: str) -> Tweak:
-        """[summary]
+        """Fetches tweak from Parcility API.
 
         Args:
-            bundle_id (str): [description]
+            bundle_id (str): Tweak bundle id to fetch.
 
         Returns:
-            Tweak: [description]
+            Tweak: Dataclass object of the tweak.
         """
 
         data = await self.__HTTP.cydia(endpoint=f"/db/package/{bundle_id}")
@@ -76,13 +78,13 @@ class Cydia:
         section: str = "Tweaks",
         field: str = "Name",
     ) -> List[Tweak]:
-        """[summary]
+        """Searches tweak from Parcility API.
 
         Args:
-            query (str): [description]
-            repo (str, optional): [description]. Defaults to "all".
-            section (str, optional): [description]. Defaults to "Tweaks".
-            field (str, optional): [description]. Defaults to "Name".
+            query (str): Keyword to search.
+            repo (str, optional): Specific repository to search. Defaults to "all".
+            section (str, optional): Specific tweak section to search. Defaults to "Tweaks".
+            field (str, optional): Specific tweak field to search. Defaults to "Name".
 
         Returns:
             List[Tweak]: [description]

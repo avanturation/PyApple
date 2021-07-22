@@ -38,7 +38,7 @@ def build_url(catalog_id) -> str:
     url += "-".join(
         [
             MACOS_NAME[str(x)] if str(x) in MACOS_NAME else "10." + str(x)
-            for x in reversed(range(16, 16 + 1))
+            for x in reversed(range(5, 16 + 1))
         ]
     )
 

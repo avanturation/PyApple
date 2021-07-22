@@ -5,15 +5,20 @@ from ..utils import AsyncRequest
 
 
 class SHSH2:
+    """Class for tsschecker related functions."""
+
     def __init__(self) -> None:
         self.__HTTP = AsyncRequest()
         super().__init__()
 
     async def run_tsschecker(self, **kwargs):
-        """[summary]
+        """Runs tsschecker from your device.
+
+        Args:
+            **Same as normal tsschecker.**
 
         Returns:
-            [type]: [description]
+            asyncio.subprocess.Process: Subprocess object of executed tsschecker.
         """
 
         args = ["tsschecker"]
@@ -106,20 +111,20 @@ class SHSH2:
         ota: Optional[bool] = False,
         beta: Optional[bool] = False,
     ):
-        """[summary]
+        """Save SHSH2 blobs of specific iOS/iPadOS version for your device.
 
         Args:
             ecid (str): ECID of your iDevice.
             identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
             buildid (str): Build ID of IPSW firmware. (e.g. 19A5297e)
             boardconfig (Optional[str], optional): Boardconfig of your iDevice. If boardconfig is None, it automatically searches from ipsw.me.
-            apnonce (Optional[str], optional): [description]. Defaults to None.
-            generator (Optional[str], optional): [description]. Defaults to None.
-            ota (Optional[bool], optional): [description]. Defaults to False.
-            beta (Optional[bool], optional): [description]. Defaults to False.
+            apnonce (Optional[str], optional): (For A12 Bionic or above) Apnonce of your device. Defaults to None.
+            generator (Optional[str], optional): (For A12 Bionic or above) Boot nonce of your device. Defaults to None.
+            ota (Optional[bool], optional): Saves SHSH2 blobs for OTA build. Defaults to False.
+            beta (Optional[bool], optional): Saves SHSH2 blobs for beta build of iOS/iPadOS. Defaults to False.
 
         Returns:
-            [type]: [description]
+            asyncio.subprocess.Process: Subprocess object of executed tsschecker.
         """
 
         args = ["tsschecker", "-d", identifier, "-e", ecid, "--buildid", buildid]
@@ -170,12 +175,12 @@ class SHSH2:
         Args:
             identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
             ecid (str): ECID of your iDevice.
-            apnonce (Optional[str], optional): Apnonce of youtr iDevice. (A12 above) Defaults to None.
-            generator (Optional[str], optional): [description]. Defaults to None.
+            apnonce (Optional[str], optional): (For A12 Bionic or above) Apnonce of your device. Defaults to None.
+            generator (Optional[str], optional): (For A12 Bionic or above) Boot nonce of your device. Defaults to None.
             boardconfig (Optional[str], optional): Boardconfig of your iDevice. If boardconfig is None, it automatically searches from ipsw.me.
 
         Returns:
-            [type]: [description]
+            asyncio.subprocess.Process: Subprocess object of executed tsschecker.
         """
 
         args = ["tsschecker", "-d", identifier, "-e", ecid]

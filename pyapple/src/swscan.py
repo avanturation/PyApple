@@ -1,7 +1,11 @@
 import plistlib
 import re
 from contextlib import suppress
-from typing import List, Optional
+from typing import List, Optional, Literal
+
+CATLOG_SUF_TYPING = Literal[
+    "publicbeta", "publicrelease", "customerseed", "developerbeta"
+]
 
 from ..interface import MacOSProduct, Package
 from ..utils import AsyncRequest
@@ -46,7 +50,7 @@ MACOS_FULLNAME = {
 
 
 class SWSCAN:
-    """[summary]"""
+    """Class for SWSCAN related functions."""
 
     def __init__(self):
         self.__HTTP = AsyncRequest()
@@ -78,14 +82,16 @@ class SWSCAN:
 
         return url
 
-    async def fetch_catalog(self, catalog_id="publicrelease"):
-        """[summary]
+    async def fetch_catalog(
+        self, catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease"
+    ):
+        """Fetches swscan catalog from Apple server.
 
         Args:
-            catalog_id (str, optional): [description]. Defaults to "publicrelease".
+            catalog_id (Literal["publicbeta", "publicrelease", "customerseed", "developerbeta"], optional): Catalog ID to fetch. Defaults to "publicrelease".
 
         Returns:
-            [type]: [description]
+            Dict: Catalog plist object by loaded by plistlib
         """
 
         raw_catalog = await self.__HTTP.swscan(
@@ -136,16 +142,18 @@ class SWSCAN:
             ]
 
     async def fetch_macos(
-        self, catalog_id="publicrelease", fetch_recovery: bool = False
+        self,
+        catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease",
+        fetch_recovery: bool = False,
     ) -> List[MacOSProduct]:
-        """[summary]
+        """Fetches all available macOS from Apple server.
 
         Args:
-            catalog_id (str, optional): [description]. Defaults to "publicrelease".
-            fetch_recovery (bool, optional): [description]. Defaults to False.
+            catalog_id (Literal["publicbeta", "publicrelease", "customerseed", "developerbeta"], optional): Catalog ID to fetch. Defaults to "publicrelease".
+            fetch_recovery (bool, optional): Fetches only Recovery. Defaults to False.
 
         Returns:
-            List[MacOSProduct]: [description]
+            List[MacOSProduct]: List of dataclass objects of macOS Product
         """
 
         macos_dict = []
@@ -166,21 +174,21 @@ class SWSCAN:
         title: Optional[str],
         buildid: Optional[str],
         version: Optional[str],
-        catalog_id="publicrelease",
+        catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease",
         fetch_recovery: bool = False,
     ) -> List[MacOSProduct]:
-        """[summary]
+        """""Searches specific macOS from Apple server.
 
         Args:
-            title (Optional[str]): [description]
-            buildid (Optional[str]): [description]
-            version (Optional[str]): [description]
-            catalog_id (str, optional): [description]. Defaults to "publicrelease".
-            fetch_recovery (bool, optional): [description]. Defaults to False.
+            title (Optional[str]): Product title to search. (e.g. macOS Big Sur)
+            buildid (Optional[str]): Build ID to search. (e.g. 21A5268h)
+            version (Optional[str]): macOS version to search. (e.g. 11.5)
+            catalog_id (Literal["publicbeta", "publicrelease", "customerseed", "developerbeta"], optional): Catalog ID to fetch. Defaults to "publicrelease".
+            fetch_recovery (bool, optional): Fetches only Recovery. Defaults to False.
 
         Returns:
-            List[MacOSProduct]: [description]
-        """
+            List[MacOSProduct]: List of dataclass objects of macOS Product
+        """ ""
 
         macos_dict = []
         if not hasattr(self, "root"):
