@@ -21,16 +21,16 @@ class IPSW:
     Dataclass object of IPSW firmware.
 
     Attributes:
-        identifier (str) - Identifier of target iDevice (e.g. iPhone12,1)
-        buildid (str) - Build string of IPSW firmware (e.g. 19A5297e)
-        version (str) - Version of IPSW firmware (e.g. 15.0)
-        url (str) - Download link of IPSW firmware
-        filesize (int) - Size of the IPSW firmware file
-        sha1sum (str) - SHA1 hash value of IPSW firmware file
-        md5sum (str) - MD5 value of IPSW firmware file
-        releasedate (datetime.datetime) - Released date of IPSW firmware
-        uploaddate (datetime.datetime) - Uploaded date of IPSW firmware
-        signed (bool) - Signing status of IPSW firmware. (*critical when downgrading or saving blobs)
+        identifier (str): Identifier of target iDevice (e.g. iPhone12,1)
+        buildid (str): Build string of IPSW firmware (e.g. 19A5297e)
+        version (str): Version of IPSW firmware (e.g. 15.0)
+        url (str): Download link of IPSW firmware
+        filesize (int): Size of the IPSW firmware file
+        sha1sum (str): SHA1 hash value of IPSW firmware file
+        md5sum (str): MD5 value of IPSW firmware file
+        releasedate (datetime.datetime): Released date of IPSW firmware
+        uploaddate (datetime.datetime): Uploaded date of IPSW firmware
+        signed (bool): Signing status of IPSW firmware. (*critical when downgrading or saving blobs)
     """
 
     __slots__ = (
@@ -67,13 +67,13 @@ class FirmwareKeys:
     """
     Dataclass object of firmware decryption keys.
 
-    Arguments:
-        image (str) - Name of target image (e.g. GlyphCharging)
-        filename (str) - Full path of target image (e.g. Firmware/all_flash/all_fl ...)
-        kbag (str) - KBAG value of target image
-        key (str) - Key value of target image
-        iv (str) - IV value of target image
-        date (datetime.datetime) - Created date of target image
+    Attributes:
+        image (str): Name of target image (e.g. GlyphCharging)
+        filename (str): Full path of target image (e.g. Firmware/all_flash/all_fl ...)
+        kbag (str): KBAG value of target image
+        key (str): Key value of target image
+        iv (str): IV value of target image
+        date (datetime.datetime): Created date of target image
     """
 
     __slots__ = ("image", "filename", "kbag", "key", "iv", "date")
@@ -91,6 +91,18 @@ class FirmwareKeys:
 
 @dataclasses.dataclass(init=True, repr=True)
 class DeviceKeys:
+    """
+    Dataclass object of device keys.
+
+    Attributes:
+        identifier (str): Identifier of target iDevice (e.g. iPhone12,1)
+        buildid (str): Build string of IPSW firmware (e.g. 19A5297e)
+        codename (str): Codename of firmware
+        baseband (str): Baseband date of target iDevice
+        updateramdiskexists (bool): Existence of update ramdisk
+        restoreramdiskexists (bool): Existence of restore ramdisk
+    """
+
     __slots__ = (
         "identifier",
         "buildid",
@@ -112,6 +124,21 @@ class DeviceKeys:
 
 @dataclasses.dataclass(init=True, repr=True)
 class OTA:
+    """Dataclass object of OTA firmware.
+
+    Attributes:
+        identifier (str): Identifier of target iDevice.
+        buildid (str): Build string of OTA firmware.
+        version (str): iOS/iPadOS version of OTA firmware.
+        filesize (str): Size of OTA payload.
+        prerequisitebuildid (str): Required build to update from.
+        prerequisiteversion (str): Required iOS/iPadOS version to update from.
+        release_type (str): Release type of OTA firmware.
+        uploaddate (datetime.datetime): Uploaded date of OTA firmware.
+        releasedate (datetime.datetime): Released date of OTA firmware.
+        signed (bool): Signing status of OTA firmware.
+    """
+
     __slots__ = (
         "identifier",
         "buildid",
@@ -145,6 +172,19 @@ class OTA:
 
 @dataclasses.dataclass(init=True, repr=True)
 class iDevice:
+    """Dataclass object of iDevice.
+
+    Attributes:
+        name (str): Name of iDevice.
+        identifier (str): Identifier of iDevice.
+        boardconfig (str): Boardconfig of iDevice.
+        platform (str): AP codename (or platform) of iDevice.
+        cpid (str): CPID of iDevice.
+        bdid (str): BDID of iDevice.
+        firmwares (List[IPSW]): List of all available IPSW firmwares of iDevice.
+        boards (List): All available boardconfigs of iDevice.
+    """
+
     __slots__ = (
         "name",
         "identifier",
