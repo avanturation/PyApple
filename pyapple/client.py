@@ -2,10 +2,10 @@ import asyncio
 import functools
 from typing import Any
 
-from .src import IPSWME, SHSH2, SWSCAN, Cydia
+from .src import IPSWME, SHSH2, SWSCAN, Jailbreak
 
 
-class Apple(IPSWME, SWSCAN, Cydia, SHSH2):
+class Apple(IPSWME, SWSCAN, Jailbreak, SHSH2):
     """
     Main class of PyApple.
 
@@ -13,7 +13,7 @@ class Apple(IPSWME, SWSCAN, Cydia, SHSH2):
         `pyapple.src.ipsw.IPSWME` - ipsw.me related class.
         `pyapple.src.swscan.SWSCAN` - swscan.apple.com related class.
         `pyapple.src.shsh2.SHSH2` - SHSH2 related class.
-        `pyapple.src.cydia.Cydia` - Jailbreak related class.
+        `pyapple.src.jaibreak.Jailbreak` - Jailbreak related class.
     """
 
     def __init__(self, *args, **kwargs):
@@ -27,7 +27,7 @@ class Apple(IPSWME, SWSCAN, Cydia, SHSH2):
 
         return self.loop.run_until_complete(coroutine(*args, **kwargs))
 
-    def __getattribute__(self, name: str) -> Any:
+    def __getattribute__(self, name: str):
         attribute = getattr(super(), name, None)
 
         if not attribute:

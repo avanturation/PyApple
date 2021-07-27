@@ -1,4 +1,4 @@
-from .cydia import Builds, Repo, Tweak
+from .jailbreak import Builds, Repo, Tweak
 from .exceptions import HTTPException
 from .ios import IPSW, OTA, FirmwareKeys, DeviceKeys, iDevice
 from .macos import MacOSProduct, Package

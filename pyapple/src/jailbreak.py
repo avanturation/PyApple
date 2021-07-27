@@ -4,7 +4,7 @@ from ..interface import Builds, Repo, Tweak
 from ..utils import AsyncRequest
 
 
-class Cydia:
+class Jailbreak:
     """Class for jailbreak related functions."""
 
     def __init__(self) -> None:

@@ -57,6 +57,7 @@ class IPSWME:
         """
         data = await self.__HTTP.ipsw(endpoint=f"/ipsw/{version}", return_type="json")
 
+        await self.__HTTP.session.close()
         return [IPSW(**firmware) for firmware in data]
 
     async def device_keys(self, identifier: str) -> List[DeviceKeys]:
