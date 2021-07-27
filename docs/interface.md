@@ -6,7 +6,7 @@ This documents describes about dataclasses of PyApple.
 
 ### IPSW
 
-Dataclass object of IPSW firmware.
+**Dataclass object of IPSW firmware.**
 
 Attributes:
 | Variable    | Type              | Description                           |
@@ -21,3 +21,17 @@ Attributes:
 | releasedate | datetime.datetime | Released date of IPSW firmware        |
 | uploaddate  | datetime.datetime | Uploaded date of IPSW firmware        |
 | signed      | bool              | Signing status of IPSW firmware       |
+
+### FirmwareKeys
+
+**Dataclass object of firmware decryption keys.**
+
+Attributes:
+| Variable | Type               | Description                  |
+|----------|--------------------|------------------------------|
+| image    | str                | Name of target image         |
+| filename | str                | Full path of target image    |
+| kbag     | str                | KBAG value of target image   |
+| key      | str                | Key value of target image    |
+| iv       | str                | IV value of target image     |
+| date     | datetime.datetime  | Created date of target image |
