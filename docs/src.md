@@ -19,7 +19,9 @@ Returns:
 Searches specfic IPSW firmware from ipsw.me API.
 
 Args:
+
     identifier (str): Identifier of iDevice. (e.g. iPhone12,1)
+    
     buildid (str): Build ID of IPSW firmware. (e.g. 19A5297e)
 
 Returns:
