@@ -118,7 +118,7 @@ class IPSWME:
             version (str): iOS/iPadOS version to search. (e.g. 14.7)
 
         Returns:
-            List[OTA]: [description]
+            List[OTA]: List of OTA firmwares.
         """
         data = await self.__HTTP.ipsw(endpoint=f"/ota/{version}", return_type="json")
 
