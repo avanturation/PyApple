@@ -130,6 +130,7 @@ class OTA:
         identifier (str): Identifier of target iDevice.
         buildid (str): Build string of OTA firmware.
         version (str): iOS/iPadOS version of OTA firmware.
+        url (str): Download link of OTA firmware
         filesize (str): Size of OTA payload.
         prerequisitebuildid (str): Required build to update from.
         prerequisiteversion (str): Required iOS/iPadOS version to update from.
