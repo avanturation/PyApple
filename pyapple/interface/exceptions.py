@@ -4,3 +4,11 @@ class HTTPException(Exception):
 
     def __str__(self) -> str:
         return self.error
+
+
+class NoCatalogResult(Exception):
+    def __init__(self, product_id) -> None:
+        self.error = f"There is no catalog result with id {product_id}."
+
+    def __str__(self) -> str:
+        return self.error

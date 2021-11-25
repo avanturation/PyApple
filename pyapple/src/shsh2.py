@@ -1,14 +1,11 @@
 from asyncio import create_subprocess_shell, subprocess
 from typing import Optional
 
-from ..utils import AsyncRequest
-
 
 class SHSH2:
     """Class for tsschecker related functions."""
 
     def __init__(self) -> None:
-        self.__HTTP = AsyncRequest()
         super().__init__()
 
     async def run_tsschecker(self, **kwargs):

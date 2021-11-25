@@ -1,13 +1,9 @@
 import plistlib
 import re
 from contextlib import suppress
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict
 
-CATLOG_SUF_TYPING = Literal[
-    "publicbeta", "publicrelease", "customerseed", "developerbeta"
-]
-
-from ..interface import MacOSProduct, Package
+from ..interface import MacOSProduct, Package, NoCatalogResult
 from ..utils import AsyncRequest
 
 OSINSTALL = {
@@ -48,12 +44,17 @@ MACOS_FULLNAME = {
     "monterey": "10.17",
 }
 
+CATLOG_SUF_TYPING = Literal[
+    "publicbeta", "publicrelease", "customerseed", "developerbeta"
+]
+
 
 class SWSCAN:
     """Class for SWSCAN related functions."""
 
     def __init__(self):
         self.__HTTP = AsyncRequest()
+        self.root: Dict = {}
         self.min_macos = 5
         self.max_macos = 16
         super().__init__()
@@ -98,27 +99,29 @@ class SWSCAN:
             self.__build_url(catalog_id), headers=OSINSTALL, return_type="text"
         )
         catalog_data = bytes(raw_catalog, "utf-8")
-        self.root = plistlib.loads(catalog_data)
+        self.root[catalog_id] = plistlib.loads(catalog_data)
 
-        return self.root
+        return self.root[catalog_id]
 
     async def __valid_products(
         self, catalog_id="publicrelease", fetch_recovery: bool = False
     ):
-        if not hasattr(self, "root"):
+        if not catalog_id in self.root:
             await self.fetch_catalog(catalog_id)
 
         if not fetch_recovery:
             return [
                 p
-                for p in self.root.get("Products", {})
-                if self.root.get("Products", {})
+                for p in self.root[catalog_id].get("Products", {})
+                if self.root[catalog_id]
+                .get("Products", {})
                 .get(p, {})
                 .get("ExtendedMetaInfo", {})
                 .get("InstallAssistantPackageIdentifiers", {})
                 .get("OSInstall", {})
                 == "com.apple.mpkg.OSInstall"
-                or self.root.get("Products", {})
+                or self.root[catalog_id]
+                .get("Products", {})
                 .get(p, {})
                 .get("ExtendedMetaInfo", {})
                 .get("InstallAssistantPackageIdentifiers", {})
@@ -129,10 +132,11 @@ class SWSCAN:
         else:
             return [
                 p
-                for p in self.root.get("Products", {})
+                for p in self.root[catalog_id].get("Products", {})
                 if any(
                     x
-                    for x in self.root.get("Products", {})
+                    for x in self.root[catalog_id]
+                    .get("Products", {})
                     .get(p, {})
                     .get("Packages", [])
                     if x["URL"].endswith(
@@ -140,6 +144,17 @@ class SWSCAN:
                     )
                 )
             ]
+
+    async def fetch_product(
+        self, product_id: str, catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease"
+    ):
+        if not catalog_id in self.root:
+            await self.fetch_catalog(catalog_id)
+
+        try:
+            return self.root[catalog_id]["Products"][product_id]
+        except KeyError:
+            raise NoCatalogResult(product_id)
 
     async def fetch_macos(
         self,
@@ -156,23 +171,20 @@ class SWSCAN:
             List[MacOSProduct]: List of dataclass objects of macOS Product
         """
 
-        macos_dict = []
-        if not hasattr(self, "root"):
+        if not not catalog_id in self.root:
             await self.fetch_catalog(catalog_id)
 
         vaild_ids = await self.__valid_products(catalog_id, fetch_recovery)
 
-        for product_id in vaild_ids:
-            metadata = await self.__get_metadata(product_id)
-            macos_dict.append(MacOSProduct(**metadata))
+        macos_dict = [
+            await self.__create_product(product_id) for product_id in vaild_ids
+        ]
 
         await self.__HTTP.session.close()
         return macos_dict
 
     async def search_macos(
         self,
-        title: Optional[str],
-        buildid: Optional[str],
         version: Optional[str],
         catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease",
         fetch_recovery: bool = False,
@@ -180,8 +192,6 @@ class SWSCAN:
         """""Searches specific macOS from Apple server.
 
         Args:
-            title (Optional[str]): Product title to search. (e.g. macOS Big Sur)
-            buildid (Optional[str]): Build ID to search. (e.g. 21A5268h)
             version (Optional[str]): macOS version to search. (e.g. 11.5)
             catalog_id (Literal["publicbeta", "publicrelease", "customerseed", "developerbeta"], optional): Catalog ID to fetch. Defaults to "publicrelease".
             fetch_recovery (bool, optional): Fetches only Recovery. Defaults to False.
@@ -189,27 +199,25 @@ class SWSCAN:
         Returns:
             List[MacOSProduct]: List of dataclass objects of macOS Product
         """ ""
-
         macos_dict = []
-        if not hasattr(self, "root"):
+
+        if not not catalog_id in self.root:
             await self.fetch_catalog(catalog_id)
 
         vaild_ids = await self.__valid_products(catalog_id, fetch_recovery)
 
         for product_id in vaild_ids:
-            metadata = await self.__get_metadata(product_id)
-            if (
-                metadata["title"] == title
-                or metadata["buildid"] == buildid
-                or metadata["version"] == version
-            ):
-                macos_dict.append(MacOSProduct(**metadata))
+            product = await self.__create_product(product_id)
+            if product.version == version:
+                macos_dict.append(product)
 
         await self.__HTTP.session.close()
         return macos_dict
 
-    async def __get_metadata(self, product_id: str, catalog_id="publicrelease"):
-        if not hasattr(self, "root"):
+    async def __create_product(
+        self, product_id: str, catalog_id="publicrelease"
+    ) -> MacOSProduct:
+        if not not catalog_id in self.root:
             await self.fetch_catalog(catalog_id)
 
         try:
@@ -278,7 +286,7 @@ class SWSCAN:
             with suppress(Exception):
                 name = re.search(r"<title>(.+?)</title>", dist_file).group(1)
 
-        return {
+        mapping = {
             "product_id": product_id,
             "title": name,
             "version": version,
@@ -291,3 +299,5 @@ class SWSCAN:
                 for package in self.root["Products"][product_id]["Packages"]
             ],
         }
+
+        return MacOSProduct(**mapping)
