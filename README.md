@@ -1,15 +1,16 @@
 # PyApple
 
-> Apple Device Utility Library written in Python
+> Simple python library for dealing with Apple device's firmwares.
 
 ## Features
 
 * Asynchronous (you can use synchronous method either)
-* Fetch IPSW by identifier, buildid and version
+* Fetch IPSW by identifier, build number and version
 * Fetch OTA firmware by identifier, buildid and version
-* Fetch available MacOS from Apple server (including betas)
+* Fetch available MacOS from Apple's update server (including betas)
 * Get information of cydia tweak and repo
 * Extract SHSH2 blobs of iDevices
+* Request an asset from Apple's Pallas OTA server.
 
 ## Example
 
@@ -22,6 +23,12 @@ device = client.search_device("iPad13,4")
 
 print(device.name) # Prints "iPad Pro (11-inch) (3rd generation)"
 ```
+
+You could see more example codes from [here](https://github.com/user/fxrcha/PyApple/main/example/README.md).
+
+## Documentation
+
+[here](https://github.com/user/fxrcha/PyApple/main/docs)
 
 ## Install
 
@@ -37,7 +44,7 @@ python3 -m pip install pyapple
 
 ## Contribute
 
-* Strongly recommend using black and isort.
+* Strongly recommends using black and isort.
 * Use pull request.
 
 ## License

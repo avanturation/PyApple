@@ -2,11 +2,11 @@ from setuptools import find_packages, setup
 
 setup(
     name="PyApple",
-    version="1.0.2",
+    version="2.0.0",
     license="MIT",
     author="fxrcha",
     author_email="truetype24@gmail.com",
-    description="A Python wrapper for Apple firmwares",
+    description="Simple python library for dealing with Apple device's firmwares.",
     long_description=open("README.md", "r", encoding="UTF8").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/fxrcha/PyApple",

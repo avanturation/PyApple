@@ -167,7 +167,7 @@ class SHSH2:
         generator: Optional[str] = None,
         boardconfig: Optional[str] = None,
     ):
-        """[summary]
+        """Extracts shsh2 blobs for latest version.
 
         Args:
             identifier (str): Identifier of iDevice. (e.g. iPhone12,1)

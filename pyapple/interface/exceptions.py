@@ -1,4 +1,8 @@
 class HTTPException(Exception):
+    """
+    Exception which happens when HTTP status code is not 200 (OK).
+    """
+
     def __init__(self, code, url) -> None:
         self.error = f"While requesting to {url}, request returned status {code}."
 
@@ -7,6 +11,10 @@ class HTTPException(Exception):
 
 
 class NoCatalogResult(Exception):
+    """
+    Exception which happens when there is no product with given product id.
+    """
+
     def __init__(self, product_id) -> None:
         self.error = f"There is no catalog result with id {product_id}."
 
