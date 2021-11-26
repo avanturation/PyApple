@@ -2,6 +2,7 @@ import plistlib
 import re
 from contextlib import suppress
 from typing import List, Optional, Literal, Dict
+from asyncio import gather
 
 from ..interface import MacOSProduct, Package, NoCatalogResult
 from ..utils import AsyncRequest
@@ -147,14 +148,30 @@ class SWSCAN:
 
     async def fetch_product(
         self, product_id: str, catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease"
-    ):
+    ) -> Dict:
+        """Returns a product by its id.
+
+        Args:
+            product_id (str): Product ID to fetch.
+            catalog_id (Literal["publicbeta", "publicrelease", "customerseed", "developerbeta"], optional): Swscan channel to fet. Defaults to "publicrelease".
+
+        Raises:
+            NoCatalogResult: If there is no result, raises NoCatalogResult.
+
+        Returns:
+            Dict: A dictonary of the product.
+        """
         if not catalog_id in self.root:
             await self.fetch_catalog(catalog_id)
 
         try:
             return self.root[catalog_id]["Products"][product_id]
+
         except KeyError:
             raise NoCatalogResult(product_id)
+
+        finally:
+            await self.__HTTP.session.close()
 
     async def fetch_macos(
         self,
@@ -176,12 +193,13 @@ class SWSCAN:
 
         vaild_ids = await self.__valid_products(catalog_id, fetch_recovery)
 
-        macos_dict = [
-            await self.__create_product(product_id) for product_id in vaild_ids
+        tasks = [
+            self.__create_product(product_id, catalog_id) for product_id in vaild_ids
         ]
+        results = await gather(*tasks)
 
         await self.__HTTP.session.close()
-        return macos_dict
+        return results
 
     async def search_macos(
         self,
@@ -189,7 +207,7 @@ class SWSCAN:
         catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease",
         fetch_recovery: bool = False,
     ) -> List[MacOSProduct]:
-        """""Searches specific macOS from Apple server.
+        """Returns macOS Product by its version.
 
         Args:
             version (Optional[str]): macOS version to search. (e.g. 11.5)
@@ -198,21 +216,20 @@ class SWSCAN:
 
         Returns:
             List[MacOSProduct]: List of dataclass objects of macOS Product
-        """ ""
-        macos_dict = []
+        """
 
         if not not catalog_id in self.root:
             await self.fetch_catalog(catalog_id)
 
         vaild_ids = await self.__valid_products(catalog_id, fetch_recovery)
 
-        for product_id in vaild_ids:
-            product = await self.__create_product(product_id)
-            if product.version == version:
-                macos_dict.append(product)
+        tasks = [
+            self.__create_product(product_id, catalog_id) for product_id in vaild_ids
+        ]
+        results = await gather(*tasks)
 
         await self.__HTTP.session.close()
-        return macos_dict
+        return list(filter(lambda product: product.version == version, results))
 
     async def __create_product(
         self, product_id: str, catalog_id="publicrelease"

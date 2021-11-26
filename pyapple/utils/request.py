@@ -6,7 +6,7 @@ from ..interface import HTTPException
 
 SWSCAN_BASE = "https://swscan.apple.com/content/catalogs/others"
 IPSW_BASE = "https://api.ipsw.me/v4"
-CYDIA_BASE = "https://api.parcility.co"
+PARCILITY_BASE = "https://api.parcility.co"
 
 
 class Base:
@@ -49,8 +49,8 @@ class AsyncRequest(Base):
         url = IPSW_BASE + endpoint
         return await self.get(url, **kwargs)
 
-    async def cydia(self, endpoint: str, **kwargs):
-        url = CYDIA_BASE + endpoint
+    async def parcility(self, endpoint: str, **kwargs):
+        url = PARCILITY_BASE + endpoint
         data = await self.get(url, return_type="json", **kwargs)
 
         if data["status"] and data["code"] == 200:

@@ -11,7 +11,7 @@ class Jailbreak:
         self.__HTTP = AsyncRequest()
         super().__init__()
 
-    def __filter_keys(self, key) -> str:
+    def __filter_keys(self, key: str) -> str:
         key = key.lower()
         key = key.replace("-", "_")
         return key
@@ -29,7 +29,7 @@ class Jailbreak:
             Repo: Dataclass object of the repo.
         """
 
-        data = await self.__HTTP.cydia(endpoint=f"/?url={url}")
+        data = await self.__HTTP.parcility(endpoint=f"/?url={url}")
         data = self.__lower_keys(data)
 
         await self.__HTTP.session.close()
@@ -45,7 +45,7 @@ class Jailbreak:
             Repo: Dataclass object of the repo.
         """
 
-        data = await self.__HTTP.cydia(endpoint=f"/db/repo/{slug}")
+        data = await self.__HTTP.parcility(endpoint=f"/db/repo/{slug}")
         data = self.__lower_keys(data)
 
         await self.__HTTP.session.close()
@@ -61,7 +61,7 @@ class Jailbreak:
             Tweak: Dataclass object of the tweak.
         """
 
-        data = await self.__HTTP.cydia(endpoint=f"/db/package/{bundle_id}")
+        data = await self.__HTTP.parcility(endpoint=f"/db/package/{bundle_id}")
         data = self.__lower_keys(data)
 
         data["builds"] = [self.__lower_keys(build) for build in data["builds"]]
@@ -90,7 +90,7 @@ class Jailbreak:
             List[Tweak]: [description]
         """
 
-        data = await self.__HTTP.cydia(
+        data = await self.__HTTP.parcility(
             endpoint=f"/db/search?q={query}&repo={repo}&section={section}&field={field}"
         )
 
