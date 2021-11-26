@@ -24,11 +24,11 @@ device = client.search_device("iPad13,4")
 print(device.name) # Prints "iPad Pro (11-inch) (3rd generation)"
 ```
 
-You could see more example codes from [here](https://github.com/user/fxrcha/PyApple/main/example/README.md).
+You could see more example codes from [here](https://github.com/fxrcha/PyApple/main/example/README.md).
 
 ## Documentation
 
-[here](https://github.com/user/fxrcha/PyApple/main/docs)
+[here](https://github.com/fxrcha/PyApple/main/docs)
 
 ## Install
 
