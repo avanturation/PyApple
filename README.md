@@ -38,7 +38,7 @@ python3 -m pip install pyapple
 
 ### Build Environment
 
-* [macOS Monterey 12.0 beta 3 (21A5268h)](https://developer.apple.com/documentation/macos-release-notes/macos-12-beta-release-notes)
+* [macOS Monterey 12.0.1](https://www.apple.com/macos/monterey/)
 * [Python 3.9.4 64-bit](https://www.python.org/downloads/release/python-394/)
 * [Mac mini (M1, 2020)](https://www.apple.com/mac-mini/) 
 
