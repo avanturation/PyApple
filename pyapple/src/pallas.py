@@ -1,3 +1,6 @@
+import asyncio
+import functools
+
 from base64 import b64decode
 from json import loads
 from typing import Dict, Literal
@@ -76,6 +79,7 @@ AUDIENCE_MACOS = {
 class Pallas:
     def __init__(self) -> None:
         self.__HTTP = AsyncRequest()
+        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     def __decode_gdmf(self, res) -> Dict:
@@ -192,3 +196,20 @@ class Pallas:
             GDMF_APPLE + "pmv", headers=header, return_type="json"
         )
         return response
+
+    def __run_coroutine(self, coroutine, *args, **kwargs):
+        if self.loop.is_running():
+            return coroutine(*args, **kwargs)
+
+        return self.loop.run_until_complete(coroutine(*args, **kwargs))
+
+    def __getattribute__(self, name: str):
+        attribute = getattr(super(), name, None)
+
+        if not attribute:
+            return object.__getattribute__(self, name)
+
+        if asyncio.iscoroutinefunction(attribute):
+            return functools.partial(self.__run_coroutine, attribute)
+
+        return attribute

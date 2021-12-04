@@ -1,3 +1,6 @@
+import asyncio
+import functools
+
 from typing import List
 
 from ..interface import IPSW, OTA, DeviceKeys, FirmwareKeys, iDevice
@@ -9,6 +12,7 @@ class IPSWME:
 
     def __init__(self) -> None:
         self.__HTTP = AsyncRequest()
+        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     async def fetch_device(self, identifier: str) -> iDevice:
@@ -141,3 +145,20 @@ class IPSWME:
 
         await self.__HTTP.session.close()
         return data
+
+    def __run_coroutine(self, coroutine, *args, **kwargs):
+        if self.loop.is_running():
+            return coroutine(*args, **kwargs)
+
+        return self.loop.run_until_complete(coroutine(*args, **kwargs))
+
+    def __getattribute__(self, name: str):
+        attribute = getattr(super(), name, None)
+
+        if not attribute:
+            return object.__getattribute__(self, name)
+
+        if asyncio.iscoroutinefunction(attribute):
+            return functools.partial(self.__run_coroutine, attribute)
+
+        return attribute

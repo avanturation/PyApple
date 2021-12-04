@@ -1,3 +1,6 @@
+import asyncio
+import functools
+
 from typing import Dict, List
 
 from ..interface import Builds, Repo, Tweak
@@ -9,6 +12,7 @@ class Jailbreak:
 
     def __init__(self) -> None:
         self.__HTTP = AsyncRequest()
+        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     def __filter_keys(self, key: str) -> str:
@@ -105,3 +109,20 @@ class Jailbreak:
 
         await self.__HTTP.session.close()
         return [Tweak(**tweaks) for tweaks in data]
+
+    def __run_coroutine(self, coroutine, *args, **kwargs):
+        if self.loop.is_running():
+            return coroutine(*args, **kwargs)
+
+        return self.loop.run_until_complete(coroutine(*args, **kwargs))
+
+    def __getattribute__(self, name: str):
+        attribute = getattr(super(), name, None)
+
+        if not attribute:
+            return object.__getattribute__(self, name)
+
+        if asyncio.iscoroutinefunction(attribute):
+            return functools.partial(self.__run_coroutine, attribute)
+
+        return attribute

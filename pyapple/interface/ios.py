@@ -55,6 +55,13 @@ class IPSW:
     signed: bool
     """Signing status of IPSW firmware. (*critical when downgrading or saving blobs)"""
 
+    def __init__(self, **kwargs) -> None:
+        fields = [field.name for field in dataclasses.fields(self)]
+
+        for key, value in kwargs.items():
+            if key in fields:
+                setattr(self, key, value)
+
     def __post_init__(self) -> None:
         self.releasedate = to_dt(self.releasedate)
         self.uploaddate = to_dt(self.uploaddate)
@@ -80,6 +87,13 @@ class FirmwareKeys:
     """IV value of target image"""
     date: Optional[str]
     """Created date of target image"""
+
+    def __init__(self, **kwargs) -> None:
+        fields = [field.name for field in dataclasses.fields(self)]
+
+        for key, value in kwargs.items():
+            if key in fields:
+                setattr(self, key, value)
 
     def __post_init__(self) -> None:
         self.date = to_dt(self.date)
@@ -115,6 +129,13 @@ class DeviceKeys:
     """Existence of restore ramdisk"""
     keys: Optional[List]
     """"""
+
+    def __init__(self, **kwargs) -> None:
+        fields = [field.name for field in dataclasses.fields(self)]
+
+        for key, value in kwargs.items():
+            if key in fields:
+                setattr(self, key, value)
 
 
 @dataclasses.dataclass(init=True, repr=True)
@@ -160,6 +181,13 @@ class OTA:
     signed: bool
     """Signing status of OTA firmware."""
 
+    def __init__(self, **kwargs) -> None:
+        fields = [field.name for field in dataclasses.fields(self)]
+
+        for key, value in kwargs.items():
+            if key in fields:
+                setattr(self, key, value)
+
     def __post_init__(self) -> None:
         self.releasedate = to_dt(self.releasedate)
         self.uploaddate = to_dt(self.uploaddate)
@@ -198,3 +226,10 @@ class iDevice:
     """List of all available IPSW firmwares of iDevice."""
     boards: Optional[List]
     """All available boardconfigs of iDevice."""
+
+    def __init__(self, **kwargs) -> None:
+        fields = [field.name for field in dataclasses.fields(self)]
+
+        for key, value in kwargs.items():
+            if key in fields:
+                setattr(self, key, value)

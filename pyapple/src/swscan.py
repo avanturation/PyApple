@@ -1,3 +1,5 @@
+import asyncio
+import functools
 import plistlib
 import re
 from contextlib import suppress
@@ -58,6 +60,7 @@ class SWSCAN:
         self.root: Dict = {}
         self.min_macos = 5
         self.max_macos = 16
+        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     def __build_url(self, catalog_id: str) -> str:
@@ -318,3 +321,20 @@ class SWSCAN:
         }
 
         return MacOSProduct(**mapping)
+
+    def __run_coroutine(self, coroutine, *args, **kwargs):
+        if self.loop.is_running():
+            return coroutine(*args, **kwargs)
+
+        return self.loop.run_until_complete(coroutine(*args, **kwargs))
+
+    def __getattribute__(self, name: str):
+        attribute = getattr(super(), name, None)
+
+        if not attribute:
+            return object.__getattribute__(self, name)
+
+        if asyncio.iscoroutinefunction(attribute):
+            return functools.partial(self.__run_coroutine, attribute)
+
+        return attribute
