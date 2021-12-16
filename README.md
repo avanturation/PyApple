@@ -23,7 +23,7 @@ async def ipad():
         device = client.search_device("iPad13,4")
         print(device.name) # Prints "iPad Pro (11-inch) (3rd generation)"
 
-get_event_loop.run_until_complete(ipad())
+get_event_loop().run_until_complete(ipad())
 ```
 
 You could see more example codes from [here](https://github.com/fxrcha/PyApple/blob/main/example).
