@@ -1,5 +1,3 @@
-import asyncio
-import functools
 import plistlib
 import re
 from contextlib import suppress
@@ -7,7 +5,7 @@ from typing import List, Optional, Literal, Dict
 from asyncio import gather
 
 from ..interface import MacOSProduct, Package, NoCatalogResult
-from ..utils import AsyncRequest
+from ..utils import Requester
 
 OSINSTALL = {
     "User-Agent": "osinstallersetupplaind (unknown version) CFNetwork/720.5.7 Darwin/14.5.0 (x86_64)"
@@ -52,15 +50,13 @@ CATLOG_SUF_TYPING = Literal[
 ]
 
 
-class SWSCAN:
+class SWSCAN(Requester):
     """Class for SWSCAN related functions."""
 
     def __init__(self):
-        self.__HTTP = AsyncRequest()
-        self.root: Dict = {}
+        self.root: Optional[Dict] = {}
         self.min_macos = 5
         self.max_macos = 16
-        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     def __build_url(self, catalog_id: str) -> str:
@@ -99,7 +95,7 @@ class SWSCAN:
             Dict: Catalog plist object by loaded by plistlib
         """
 
-        raw_catalog = await self.__HTTP.swscan(
+        raw_catalog = await self.swscan(
             self.__build_url(catalog_id), headers=OSINSTALL, return_type="text"
         )
         catalog_data = bytes(raw_catalog, "utf-8")
@@ -173,9 +169,6 @@ class SWSCAN:
         except KeyError:
             raise NoCatalogResult(product_id)
 
-        finally:
-            await self.__HTTP.session.close()
-
     async def fetch_macos(
         self,
         catalog_id: Optional[CATLOG_SUF_TYPING] = "publicrelease",
@@ -201,7 +194,6 @@ class SWSCAN:
         ]
         results = await gather(*tasks)
 
-        await self.__HTTP.session.close()
         return results
 
     async def search_macos(
@@ -231,7 +223,6 @@ class SWSCAN:
         ]
         results = await gather(*tasks)
 
-        await self.__HTTP.session.close()
         return list(filter(lambda product: product.version == version, results))
 
     async def __create_product(
@@ -241,7 +232,7 @@ class SWSCAN:
             await self.fetch_catalog(catalog_id)
 
         try:
-            resp = await self.__HTTP.request(
+            resp = await self.request(
                 method="GET",
                 url=self.root["Products"][product_id]["ServerMetadataURL"],
                 return_type="text",
@@ -251,7 +242,7 @@ class SWSCAN:
             name = smd["localization"]["English"]["title"]
             version = smd["CFBundleShortVersionString"]
 
-            dist_file = await self.__HTTP.request(
+            dist_file = await self.request(
                 method="GET",
                 url=self.root["Products"][product_id]["Distributions"]["English"],
                 return_type="text",
@@ -271,7 +262,7 @@ class SWSCAN:
                 )
 
         except:
-            dist_file = await self.__HTTP.request(
+            dist_file = await self.request(
                 url=self.root["Products"][product_id]["Distributions"]["English"],
                 method="GET",
                 return_type="text",
@@ -321,20 +312,3 @@ class SWSCAN:
         }
 
         return MacOSProduct(**mapping)
-
-    def __run_coroutine(self, coroutine, *args, **kwargs):
-        if self.loop.is_running():
-            return coroutine(*args, **kwargs)
-
-        return self.loop.run_until_complete(coroutine(*args, **kwargs))
-
-    def __getattribute__(self, name: str):
-        attribute = getattr(super(), name, None)
-
-        if not attribute:
-            return object.__getattribute__(self, name)
-
-        if asyncio.iscoroutinefunction(attribute):
-            return functools.partial(self.__run_coroutine, attribute)
-
-        return attribute

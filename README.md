@@ -4,7 +4,7 @@
 
 ## Features
 
-* Asynchronous (you can use synchronous method either)
+* Asynchronous
 * Fetch IPSW by identifier, build number and version
 * Fetch OTA firmware by identifier, buildid and version
 * Fetch available MacOS from Apple's update server (including betas)
@@ -15,13 +15,15 @@
 ## Example
 
 ```py
-from pyapple import Apple
+from asyncio import get_event_loop
+from pyapple import Client
 
-client = Apple()
+async def ipad():
+    async with Client() as client:
+        device = client.search_device("iPad13,4")
+        print(device.name) # Prints "iPad Pro (11-inch) (3rd generation)"
 
-device = client.search_device("iPad13,4")
-
-print(device.name) # Prints "iPad Pro (11-inch) (3rd generation)"
+get_event_loop.run_until_complete(ipad())
 ```
 
 You could see more example codes from [here](https://github.com/fxrcha/PyApple/blob/main/example).
@@ -35,12 +37,6 @@ You could see more example codes from [here](https://github.com/fxrcha/PyApple/b
 ```zsh
 python3 -m pip install pyapple
 ```
-
-### Build Environment
-
-* [macOS Monterey 12.0.1](https://www.apple.com/macos/monterey/)
-* [Python 3.9.4 64-bit](https://www.python.org/downloads/release/python-394/)
-* [Mac mini (M1, 2020)](https://www.apple.com/mac-mini/) 
 
 ## Contribute
 

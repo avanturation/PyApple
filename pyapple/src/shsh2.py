@@ -1,15 +1,13 @@
-import asyncio
-import functools
-
 from asyncio import create_subprocess_shell, subprocess
 from typing import Optional
 
+from ..utils import Requester
 
-class SHSH2:
+
+class SHSH2(Requester):
     """Class for tsschecker related functions."""
 
     def __init__(self) -> None:
-        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     async def run_tsschecker(self, **kwargs):
@@ -145,7 +143,7 @@ class SHSH2:
             args.append("--beta")
 
         if boardconfig is None:
-            device_info = await self.__HTTP.ipsw(
+            device_info = await self.ipsw(
                 endpoint=f"/device/{identifier}", return_type="json"
             )
 
@@ -160,7 +158,6 @@ class SHSH2:
             stderr=subprocess.PIPE,
         )
 
-        await self.__HTTP.session.close()
         return proc
 
     async def latest_blobs(
@@ -186,7 +183,7 @@ class SHSH2:
 
         args = ["tsschecker", "-d", identifier, "-e", ecid]
 
-        device_info = await self.__HTTP.ipsw(
+        device_info = await self.ipsw(
             endpoint=f"/device/{identifier}", return_type="json"
         )
 
@@ -221,22 +218,4 @@ class SHSH2:
             stderr=subprocess.PIPE,
         )
 
-        await self.__HTTP.session.close()
         return proc
-
-    def __run_coroutine(self, coroutine, *args, **kwargs):
-        if self.loop.is_running():
-            return coroutine(*args, **kwargs)
-
-        return self.loop.run_until_complete(coroutine(*args, **kwargs))
-
-    def __getattribute__(self, name: str):
-        attribute = getattr(super(), name, None)
-
-        if not attribute:
-            return object.__getattribute__(self, name)
-
-        if asyncio.iscoroutinefunction(attribute):
-            return functools.partial(self.__run_coroutine, attribute)
-
-        return attribute

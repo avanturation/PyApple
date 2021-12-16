@@ -1,13 +1,10 @@
-import asyncio
-import functools
-
 from base64 import b64decode
 from json import loads
 from typing import Dict, Literal
 
 from aiohttp import ClientSession, TCPConnector
 
-from ..utils import AsyncRequest
+from ..utils import Requester
 
 CHANNEL_SUF_TYPING = Literal["beta", "developerbeta", "publicbeta", "release"]
 ASSET_SUF_TYPING = Literal["SoftwareUpdate", "MacSoftwareUpdate", "SFRSoftwareUpdate"]
@@ -76,10 +73,8 @@ AUDIENCE_MACOS = {
 }
 
 
-class Pallas:
+class Pallas(Requester):
     def __init__(self) -> None:
-        self.__HTTP = AsyncRequest()
-        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     def __decode_gdmf(self, res) -> Dict:
@@ -170,13 +165,12 @@ class Pallas:
         }
 
         conn = TCPConnector(ssl=False)
-        self.__HTTP.session = ClientSession(connector=conn)
+        self.session = ClientSession(connector=conn)
 
-        response = await self.__HTTP.post(
+        response = await self.post(
             GDMF_APPLE + "assets", json=post_data, headers=header, return_type="text"
         )
 
-        await self.__HTTP.session.close()
         return self.__decode_gdmf(response)
 
     async def get_pmv(self):
@@ -190,26 +184,9 @@ class Pallas:
         }
 
         conn = TCPConnector(ssl=False)
-        self.__HTTP.session = ClientSession(connector=conn)
+        self.session = ClientSession(connector=conn)
 
-        response = await self.__HTTP.get(
+        response = await self.get(
             GDMF_APPLE + "pmv", headers=header, return_type="json"
         )
         return response
-
-    def __run_coroutine(self, coroutine, *args, **kwargs):
-        if self.loop.is_running():
-            return coroutine(*args, **kwargs)
-
-        return self.loop.run_until_complete(coroutine(*args, **kwargs))
-
-    def __getattribute__(self, name: str):
-        attribute = getattr(super(), name, None)
-
-        if not attribute:
-            return object.__getattribute__(self, name)
-
-        if asyncio.iscoroutinefunction(attribute):
-            return functools.partial(self.__run_coroutine, attribute)
-
-        return attribute

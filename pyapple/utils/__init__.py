@@ -1,3 +1,3 @@
-from .request import AsyncRequest
+from .request import Requester
 
-__all__ = ["AsyncRequest"]
+__all__ = ["Requester"]

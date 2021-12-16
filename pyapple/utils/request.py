@@ -43,8 +43,15 @@ class Base:
 
         return await self.request(url, "GET", **kwargs)
 
+    async def __aenter__(self):
+        return self
 
-class AsyncRequest(Base):
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        if self.session:
+            await self.session.close()
+
+
+class Requester(Base):
     async def ipsw(self, endpoint: str, **kwargs):
         url = IPSW_BASE + endpoint
         return await self.get(url, **kwargs)

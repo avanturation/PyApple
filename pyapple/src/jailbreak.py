@@ -1,18 +1,13 @@
-import asyncio
-import functools
-
 from typing import Dict, List
 
 from ..interface import Builds, Repo, Tweak
-from ..utils import AsyncRequest
+from ..utils import Requester
 
 
-class Jailbreak:
+class Jailbreak(Requester):
     """Class for jailbreak related functions."""
 
     def __init__(self) -> None:
-        self.__HTTP = AsyncRequest()
-        self.loop = asyncio.get_event_loop()
         super().__init__()
 
     def __filter_keys(self, key: str) -> str:
@@ -33,10 +28,9 @@ class Jailbreak:
             Repo: Dataclass object of the repo.
         """
 
-        data = await self.__HTTP.parcility(endpoint=f"/?url={url}")
+        data = await self.parcility(endpoint=f"/?url={url}")
         data = self.__lower_keys(data)
 
-        await self.__HTTP.session.close()
         return Repo(**data)
 
     async def search_repo(self, slug: str) -> Repo:
@@ -49,10 +43,9 @@ class Jailbreak:
             Repo: Dataclass object of the repo.
         """
 
-        data = await self.__HTTP.parcility(endpoint=f"/db/repo/{slug}")
+        data = await self.parcility(endpoint=f"/db/repo/{slug}")
         data = self.__lower_keys(data)
 
-        await self.__HTTP.session.close()
         return Repo(**data)
 
     async def fetch_tweak(self, bundle_id: str) -> Tweak:
@@ -65,14 +58,13 @@ class Jailbreak:
             Tweak: Dataclass object of the tweak.
         """
 
-        data = await self.__HTTP.parcility(endpoint=f"/db/package/{bundle_id}")
+        data = await self.parcility(endpoint=f"/db/package/{bundle_id}")
         data = self.__lower_keys(data)
 
         data["builds"] = [self.__lower_keys(build) for build in data["builds"]]
         data["builds"] = [Builds(**build) for build in data["builds"]]
         data["depends"] = data["depends"].split(", ")
 
-        await self.__HTTP.session.close()
         return Tweak(**data)
 
     async def search_tweak(
@@ -94,7 +86,7 @@ class Jailbreak:
             List[Tweak]: [description]
         """
 
-        data = await self.__HTTP.parcility(
+        data = await self.parcility(
             endpoint=f"/db/search?q={query}&repo={repo}&section={section}&field={field}"
         )
 
@@ -107,22 +99,4 @@ class Jailbreak:
             data[index]["builds"] = [Builds(**build) for build in data[index]["builds"]]
             data[index]["depends"] = data[index]["depends"].split(", ")
 
-        await self.__HTTP.session.close()
         return [Tweak(**tweaks) for tweaks in data]
-
-    def __run_coroutine(self, coroutine, *args, **kwargs):
-        if self.loop.is_running():
-            return coroutine(*args, **kwargs)
-
-        return self.loop.run_until_complete(coroutine(*args, **kwargs))
-
-    def __getattribute__(self, name: str):
-        attribute = getattr(super(), name, None)
-
-        if not attribute:
-            return object.__getattribute__(self, name)
-
-        if asyncio.iscoroutinefunction(attribute):
-            return functools.partial(self.__run_coroutine, attribute)
-
-        return attribute
