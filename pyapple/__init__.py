@@ -18,7 +18,7 @@ Github: https://github.com/fxrcha/PyApple
 """
 
 
-from .client import Apple
+from .client import Client
 from .src import Jailbreak, IPSWME, SHSH2, SWSCAN, Pallas
 from .interface import *
 
