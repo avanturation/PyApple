@@ -77,7 +77,7 @@ class Pallas(Requester):
     def __init__(self) -> None:
         super().__init__()
 
-    def __decode_gdmf(self, res) -> Dict:
+    def __decode_gdmf(self, res: str) -> Dict:
         res = res.split(".")
 
         b64 = res[1].replace("-", "+").replace("_", "/")

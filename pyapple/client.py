@@ -1,17 +1,42 @@
 import asyncio
 import functools
-from typing import Any, Coroutine
+from typing import Any, Coroutine, Optional
 from inspect import iscoroutinefunction
+
+from aiohttp.client import ClientSession
 
 from .src import IPSWME, SHSH2, SWSCAN, Jailbreak, Pallas
 
 
-class Client(IPSWME, SWSCAN, Jailbreak, SHSH2, Pallas):
+class Client:
     """
     Main class of PyApple.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # needs to be reworked
+        self.session: Optional[ClientSession] = ClientSession()
+
+        self.ipswme = IPSWME()
+        self.swscan = SWSCAN()
+        self.jailbreak = Jailbreak()
+        self.shsh2 = SHSH2()
+        self.pallas = Pallas()
+
+        directory = (
+            dir(self.ipswme)
+            + dir(self.swscan)
+            + dir(self.jailbreak)
+            + dir(self.shsh2)
+            + dir(self.pallas)
+        )
+
+        client_dir = dir(self)
+
+        directory -= client_dir
+
+        for fname in directory:
+            pass  # setattr ...
+
         super().__init__(*args, **kwargs)
 
     @classmethod
