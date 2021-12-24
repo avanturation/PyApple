@@ -1,6 +1,6 @@
 import asyncio
 import functools
-from typing import Any, Callable, Coroutine
+from typing import Any, Coroutine
 from inspect import iscoroutinefunction
 
 from .src import IPSWME, SHSH2, SWSCAN, Jailbreak, Pallas
@@ -19,7 +19,7 @@ class Client(IPSWME, SWSCAN, Jailbreak, SHSH2, Pallas):
         client = cls()
         request_func = getattr(client, "request")
 
-        async def session_closer(*args, **kwargs):
+        async def session_closer(*args: Any, **kwargs: Any) -> Any:
             try:
                 return await request_func(*args, **kwargs)
 
@@ -28,15 +28,19 @@ class Client(IPSWME, SWSCAN, Jailbreak, SHSH2, Pallas):
                     await client.session.close()
 
         def to_sync(func: Coroutine):
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: Any, **kwargs: Any):
                 loop = asyncio.get_event_loop()
 
                 if loop.is_running():
                     return func(*args, **kwargs)
 
-                loop.run_until_complete(func(*args, **kwargs))
+                return loop.run_until_complete(func(*args, **kwargs))
 
             return wrapper
+
+        setattr(client, "__aenter__", None)
+        setattr(client, "__aexit__", None)
+        setattr(client, "sync", None)
 
         del client.__aenter__
         del client.__aexit__
