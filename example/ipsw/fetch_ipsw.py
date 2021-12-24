@@ -1,8 +1,8 @@
 import asyncio
 
-from pyapple import Apple
+from pyapple import Client
 
-client = Apple()
+client = Client()
 
 
 # asynchronous way
@@ -23,6 +23,7 @@ if __name__ == "__main__":
 
 # not asynchronous
 def fetch_firmwares(version: str):
+    client = Client.sync()
     firmware_data = client.fetch_ipsw_version(version)
     print(f"There are {len(firmware_data)} firmwares for iOS {version}.")
 

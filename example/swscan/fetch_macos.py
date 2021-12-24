@@ -1,8 +1,8 @@
 import asyncio
 
-from pyapple import Apple
+from pyapple import Client
 
-client = Apple()
+client = Client()
 
 SUF = {"1": "publicrelease", "2": "publicbeta", "3": "developerbeta"}
 

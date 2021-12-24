@@ -2,9 +2,9 @@ import asyncio
 import aiohttp
 from tqdm import tqdm
 
-from pyapple import Apple
+from pyapple import Client
 
-client = Apple()
+client = Client()
 
 
 async def download(url: str, name: str, buildid: str):
@@ -26,7 +26,7 @@ async def download(url: str, name: str, buildid: str):
 
 async def download_monterey():
     monterey_result = await client.search_macos(
-        title="macOS Monterey", catalog_id="developerbeta"
+        version="12", catalog_id="developerbeta"
     )
 
     real_monterey = monterey_result[0]

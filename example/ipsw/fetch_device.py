@@ -1,8 +1,8 @@
 import asyncio
 
-from pyapple import Apple
+from pyapple import Client
 
-client = Apple()
+client = Client()
 
 # asynchronous
 async def idevice_async(identiifer: str):
@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
 # not asynchronous
 def idevice(identiifer: str):
+    client = Client.sync()
     device_data = client.fetch_device(identiifer)
 
     print(f"Information of {device_data.name}")

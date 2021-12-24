@@ -1,8 +1,8 @@
 import asyncio
 import webbrowser
-from pyapple import Apple
+from pyapple import Client
 
-client = Apple()
+client = Client()
 
 
 async def ota_docs_async(identifier: str, version: str):
@@ -20,6 +20,7 @@ if __name__ == "__main__":
 
 
 def ota_docs(identifier: str, version: str):
+    client = Client.sync()
     document = client.fetch_ota_docs(identifier, version)
 
     with open(f"{version}_{identifier}_docs.html", "w", encoding="utf-8") as f:

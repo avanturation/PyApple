@@ -1,8 +1,8 @@
 import asyncio
 
-from pyapple import Apple
+from pyapple import Client
 
-client = Apple()
+client = Client()
 
 
 async def find_repo(keyword: str):

@@ -1,8 +1,8 @@
 import asyncio
 
-from pyapple import Apple
+from pyapple import Client
 
-client = Apple()
+client = Client()
 
 if __name__ == "__main__":
     print("Saving your iPhone's blob.")
