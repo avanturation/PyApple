@@ -61,7 +61,7 @@ class SWSCAN(Requester):
 
     def __build_url(self, catalog_id: str) -> str:
         catalog = catalog_id.lower()
-        url = "/index-"
+        url = "https://swscan.apple.com/content/catalogs/others/index-"
 
         url += "-".join(
             [
@@ -117,16 +117,7 @@ class SWSCAN(Requester):
                 .get("Products", {})
                 .get(p, {})
                 .get("ExtendedMetaInfo", {})
-                .get("InstallAssistantPackageIdentifiers", {})
-                .get("OSInstall", {})
-                == "com.apple.mpkg.OSInstall"
-                or self.root[catalog_id]
-                .get("Products", {})
-                .get(p, {})
-                .get("ExtendedMetaInfo", {})
-                .get("InstallAssistantPackageIdentifiers", {})
-                .get("SharedSupport", "")
-                .startswith("com.apple.pkg.InstallAssistant")
+                .get("InstallAssistantPackageIdentifiers", None)
             ]
 
         else:

@@ -32,15 +32,9 @@ class Base:
             raise HTTPException(resp.status, url)
 
     async def post(self, url: str, **kwargs: Any):
-        if not self.session or self.session.closed:
-            self.session = ClientSession()
-
         return await self.request(url, "POST", **kwargs)
 
     async def get(self, url: str, **kwargs: Any):
-        if not self.session or self.session.closed:
-            self.session = ClientSession()
-
         return await self.request(url, "GET", **kwargs)
 
     async def __aenter__(self):

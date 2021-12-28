@@ -15,7 +15,7 @@ class Jailbreak(Requester):
         key = key.replace("-", "_")
         return key
 
-    def __lower_keys(self, data) -> Dict:
+    def __lower_keys(self, data: Dict) -> Dict:
         return {self.__filter_keys(key): value for key, value in data.items()}
 
     async def fetch_repo(self, url: str) -> Repo:

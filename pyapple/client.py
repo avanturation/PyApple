@@ -1,9 +1,7 @@
-import asyncio
-import functools
+from asyncio import get_event_loop
 from typing import Any, Coroutine, Optional
 from inspect import iscoroutinefunction
 
-from aiohttp.client import ClientSession
 
 from .src import IPSWME, SHSH2, SWSCAN, Jailbreak, Pallas
 
@@ -14,29 +12,6 @@ class Client:
     """
 
     def __init__(self, *args, **kwargs):  # needs to be reworked
-        self.session: Optional[ClientSession] = ClientSession()
-
-        self.ipswme = IPSWME()
-        self.swscan = SWSCAN()
-        self.jailbreak = Jailbreak()
-        self.shsh2 = SHSH2()
-        self.pallas = Pallas()
-
-        directory = (
-            dir(self.ipswme)
-            + dir(self.swscan)
-            + dir(self.jailbreak)
-            + dir(self.shsh2)
-            + dir(self.pallas)
-        )
-
-        client_dir = dir(self)
-
-        directory -= client_dir
-
-        for fname in directory:
-            pass  # setattr ...
-
         super().__init__(*args, **kwargs)
 
     @classmethod
@@ -54,7 +29,7 @@ class Client:
 
         def to_sync(func: Coroutine):
             def wrapper(*args: Any, **kwargs: Any):
-                loop = asyncio.get_event_loop()
+                loop = get_event_loop()
 
                 if loop.is_running():
                     return func(*args, **kwargs)
