@@ -72,11 +72,9 @@ class SWSCAN(Requester):
             Dict: Catalog plist object by loaded by plistlib
         """
 
-        raw_catalog = await self.swscan(
-            self.__build_url(catalog_id), headers=OSINSTALL, return_type="text"
+        self.root[catalog_id] = await self.swscan(
+            self.__build_url(catalog_id), headers=OSINSTALL
         )
-        catalog_data = bytes(raw_catalog, "utf-8")
-        self.root[catalog_id] = plistlib.loads(catalog_data)
 
         return self.root[catalog_id]
 
@@ -199,71 +197,25 @@ class SWSCAN(Requester):
         if not not catalog_id in self.root:
             await self.fetch_catalog(catalog_id)
 
-        try:
-            resp = await self.request(
-                method="GET",
-                url=self.root["Products"][product_id]["ServerMetadataURL"],
-                return_type="text",
+        smd = await self.swscan(
+            url=self.root["Products"][product_id]["ServerMetadataURL"],
+        )
+
+        name = smd["localization"]["English"]["title"]
+        version = smd["CFBundleShortVersionString"]
+
+        dist_file = await self.request(
+            method="GET",
+            url=self.root["Products"][product_id]["Distributions"]["English"],
+            return_type="text",
+        )
+
+        with suppress(Exception):
+            build = (
+                dist_file.split("<key>BUILD</key>")[1]
+                .split("</string>")[0]
+                .replace("<string>","").strip()
             )
-
-            smd = plistlib.loads(bytes(resp, "utf-8"))
-            name = smd["localization"]["English"]["title"]
-            version = smd["CFBundleShortVersionString"]
-
-            dist_file = await self.request(
-                method="GET",
-                url=self.root["Products"][product_id]["Distributions"]["English"],
-                return_type="text",
-            )
-
-            build_search = (
-                "macOSProductBuildVersion"
-                if "macOSProductBuildVersion" in dist_file
-                else "BUILD"
-            )
-
-            with suppress(Exception):
-                build = (
-                    dist_file.split("<key>{}</key>".format(build_search))[1]
-                    .split("<string>")[1]
-                    .split("</string>")[0]
-                )
-
-        except:
-            dist_file = await self.request(
-                url=self.root["Products"][product_id]["Distributions"]["English"],
-                method="GET",
-                return_type="text",
-            )
-
-            build_search = (
-                "macOSProductBuildVersion"
-                if "macOSProductBuildVersion" in dist_file
-                else "BUILD"
-            )
-
-            vers_search = (
-                "macOSProductVersion"
-                if "macOSProductVersion" in dist_file
-                else "VERSION"
-            )
-
-            with suppress(Exception):
-                build = (
-                    dist_file.split("<key>{}</key>".format(build_search))[1]
-                    .split("<string>")[1]
-                    .split("</string>")[0]
-                )
-
-            with suppress(Exception):
-                version = (
-                    dist_file.split("<key>{}</key>".format(vers_search))[1]
-                    .split("<string>")[1]
-                    .split("</string>")[0]
-                )
-
-            with suppress(Exception):
-                name = re.search(r"<title>(.+?)</title>", dist_file).group(1)
 
         mapping = {
             "product_id": product_id,

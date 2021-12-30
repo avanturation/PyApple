@@ -4,7 +4,9 @@ from aiohttp import ClientSession
 
 from ..interface import HTTPException
 
-SWSCAN_BASE = "https://swscan.apple.com/content/catalogs/others"
+from plistlib import loads
+
+SWSCAN_BASE = ""
 IPSW_BASE = "https://api.ipsw.me/v4"
 PARCILITY_BASE = "https://api.parcility.co"
 
@@ -61,4 +63,6 @@ class Requester(Base):
 
     async def swscan(self, index: str, headers=None, **kwargs):
         url = SWSCAN_BASE + index
-        return await self.get(url, headers=headers, **kwargs)
+        resp = await self.get(url, headers=headers, return_type="text", **kwargs)
+
+        return loads(bytes(resp, "utf-8"))
