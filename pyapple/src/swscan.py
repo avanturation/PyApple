@@ -28,23 +28,6 @@ MACOS_NAME = {
     "5": "leopard",
 }
 
-MACOS_FULLNAME = {
-    "tiger": "10.4",
-    "leopard": "10.5",
-    "snow leopard": "10.6",
-    "lion": "10.7",
-    "mountain lion": "10.8",
-    "mavericks": "10.9",
-    "yosemite": "10.10",
-    "el capitan": "10.11",
-    "sierra": "10.12",
-    "high sierra": "10.13",
-    "mojave": "10.14",
-    "catalina": "10.15",
-    "big sur": "10.16",
-    "monterey": "10.17",
-}
-
 CATLOG_SUF_TYPING = Literal[
     "publicbeta", "publicrelease", "customerseed", "developerbeta"
 ]
@@ -61,7 +44,10 @@ class SWSCAN(Requester):
 
     def __build_url(self, catalog_id: str) -> str:
         catalog = catalog_id.lower()
-        url = "https://swscan.apple.com/content/catalogs/others/index-"
+        url = "https://swscan.apple.com/content/catalogs/others/index-12"
+
+        if CATLOG_SUF[catalog]:
+            url = url.replace("12", "12" + CATLOG_SUF[catalog] + "-12-")
 
         url += "-".join(
             [
@@ -71,15 +57,6 @@ class SWSCAN(Requester):
         )
 
         url += ".merged-1.sucatalog"
-
-        ver_s = (
-            MACOS_NAME[str(self.max_macos)]
-            if str(self.max_macos) in MACOS_NAME
-            else "10." + str(self.max_macos)
-        )
-
-        if CATLOG_SUF[catalog]:
-            url = url.replace(ver_s, ver_s + CATLOG_SUF[catalog] + "-" + ver_s)
 
         return url
 

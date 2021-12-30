@@ -33,7 +33,10 @@ MACOS_FULLNAME = {
 
 def build_url(catalog_id) -> str:
     catalog = catalog_id.lower()
-    url = "https://swscan.apple.com/content/catalogs/others/index-"
+    url = "https://swscan.apple.com/content/catalogs/others/index-12"
+
+    if CATLOG_SUF[catalog]:
+        url = url.replace("12", "12" + CATLOG_SUF[catalog] + "-12-")
 
     url += "-".join(
         [
@@ -44,12 +47,7 @@ def build_url(catalog_id) -> str:
 
     url += ".merged-1.sucatalog"
 
-    ver_s = MACOS_NAME[str(16)] if str(16) in MACOS_NAME else "10." + str(16)
-
-    if CATLOG_SUF[catalog]:
-        url = url.replace(ver_s, ver_s + CATLOG_SUF[catalog] + "-" + ver_s)
-
     return url
 
 
-print(build_url("publicrelease"))
+print(build_url("developerseed"))
